@@ -6,6 +6,7 @@ end
 local gModule, parent = torch.class('nn.gModule','nn.Module')
 
 function gModule:__init(...)
+	parent.__init(self)
 	local nodes = {...}
 	-- the graph is defined backwards, we have the output modules as input here
 	-- we will define a dummy output node that connects all output modules
@@ -39,6 +40,27 @@ function gModule:__init(...)
 	self.innode = innode
 	self.outnode = self.bg:roots()[1]
 	self.verbose = false
+
+	if #nodes > 1 then
+		self.output = {}
+		for i,n in ipairs(nodes) do
+			table.insert(self.output,node.data.module and node.data.module.output or node.data.input)
+		end
+	else
+		local node = nodes[1]
+		self.output = node.data.module and node.data.module.output or node.data.input
+	end
+
+	if #roots > 1 then
+		self.gradInput = {}
+		for i,node in ipairs(self.roots) do
+			table.insert(self.gradInput,node.data.module and node.data.module.gradInput or nil)
+		end
+	else
+		node = self.roots[1]
+		self.gradInput = node.data.module and node.data.module.gradInput or nil
+	end
+
 end
 
 function gModule:updateOutput(input)
