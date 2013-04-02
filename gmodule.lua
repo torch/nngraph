@@ -150,8 +150,8 @@ function gModule:updateOutput(input)
 
 	-- everything is done, so now I can collect the results
 	-- that are stored in outnode.input
-	local outputs = self.outnode.data.input
-	self.output = #outputs == 1 and outputs[1] or outputs
+	-- local outputs = self.outnode.data.input
+	-- self.output = #outputs == 1 and outputs[1] or outputs
 	return self.output
 end
 
@@ -237,7 +237,7 @@ function gModule:updateGradInput(input,gradOutput)
 	outnode:bfs(function(node) node.data.gradOutput = nil end)
 	outnode:bfs(neteval)
 
-	self.gradInput = self.innode.data.gradOutput
+	-- self.gradInput = self.innode.data.gradOutput
 	return self.gradInput
 end
 
