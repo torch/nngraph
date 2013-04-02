@@ -51,7 +51,7 @@ function gModule:__init(...)
 		self.output = node.data.module and node.data.module.output or node.data.input
 	end
 
-	if #roots > 1 then
+	if #self.roots > 1 then
 		self.gradInput = {}
 		for i,node in ipairs(self.roots) do
 			table.insert(self.gradInput,node.data.module and node.data.module.gradInput or nil)
