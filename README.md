@@ -48,4 +48,4 @@ graph.dot(mlp.fg)
 
 ```
 
-![mlp](https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp.svg)
+![mlp](https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp.png)
