@@ -28,7 +28,7 @@ torch-pkg deploy
 
 The aim of this library is to provide users of nn library with tools to easily create complicated architectures. Any given nn module or criterion is going to be bundled into a graph node. The __call operator of an instance of nn.Module and nn.Criterion is used to create architectures as if one is writing function calls.
 
-### One hidden layer network.
+### One hidden layer network
 
 ```lua
 require 'nngraph'
@@ -49,3 +49,26 @@ graph.dot(mlp.fg)
 ```
 
 ![mlp](https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp.png)
+
+### A net with 2 inputs and 2 outputs
+
+```lua
+require 'nngraph'
+
+m0=nn.Linear(20,1)(nn.Tanh()(nn.Linear(20,20)()))
+m1=nn.Linear(10,1)(nn.Tanh()(nn.Linear(10,10)()))
+madd=nn.CAddTable()({m0,m1})
+m2=nn.Sigmoid()(madd)
+m3=nn.Tanh()(madd)
+gmod = nn.gModule({m2,m3})
+
+x = torch.rand(20)
+y = torch.rand(10)
+
+gmod:updateOutput({x,y})
+gmod:updateGradInput({x,y},{torch.rand(1),torch.rand(1)})
+graph.dot(gmod.fg)
+
+```
+
+![bigmlp](https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp2.png)
