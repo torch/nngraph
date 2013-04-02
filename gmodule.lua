@@ -90,9 +90,9 @@ function gModule:updateOutput(input)
 			-- its children
 			for i,child in ipairs(node.children) do
 				if child.data.input then
-					table.insert(child.data.input,node.data.input)
+					table.insert(child.data.input,#node.data.input == 1 and node.data.input[1] or node.data.input)
 				else
-					child.data.input = {node.data.input}
+					child.data.input = {#node.data.input == 1 and node.data.input[1] or node.data.input}
 				end
 			end
 		elseif node.data.module then
