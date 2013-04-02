@@ -43,7 +43,7 @@ function gModule:__init(...)
 
 	if #nodes > 1 then
 		self.output = {}
-		for i,n in ipairs(nodes) do
+		for i,node in ipairs(nodes) do
 			table.insert(self.output,node.data.module and node.data.module.output or node.data.input)
 		end
 	else
