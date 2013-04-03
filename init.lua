@@ -30,6 +30,7 @@ function Module:__call__(input)
 		input = {input}
 	end
 	local mnode = nngraph.Node({module=self})
+
 	local dnodes = {}
 	for i,dnode in ipairs(input) do
 		if torch.typename(dnode) ~= 'nngraph.Node' then
@@ -41,7 +42,7 @@ function Module:__call__(input)
 				error('what is this in the input? ' .. dnode)
 			end
 		end
-		mnode:add(dnode)
+		mnode:add(dnode,true)
 	end
 	return mnode
 end

@@ -14,6 +14,19 @@ local nnNode,parent = torch.class('nngraph.Node','graph.Node')
 
 function nnNode:__init(data)
 	parent.__init(self,data)
+	self.data.mapindex = self.data.mapindex or {}
+end
+
+function nnNode:add(child,domap)
+	parent.add(self,child)
+	if domap then
+		mapindex = self.data.mapindex
+		local data = child.data
+		if not mapindex[data] then
+			table.insert(mapindex,data)
+			mapindex[data] = #mapindex
+		end
+	end
 end
 
 function nnNode:label()
@@ -31,12 +44,30 @@ function nnNode:label()
 			end
 			return '{' .. table.concat(tstr,',') .. '}'
 		else
-			return tostring(data)
+			return tostring(data):gsub('\n','\\l')
+		end
+	end
+	local function getmapindexstr(data)
+		if not data then return '' end
+		if istable(data) then
+			local tstr = {}
+			for i,v in ipairs(data) do
+				table.insert(tstr, tostring(v.module or v.input or v.data))
+			end
+			return '{' .. table.concat(tstr,',') .. '}'
+		else
+			return tostring(data):gsub('\n','\\l')
 		end
 	end
 
 	for k,v in pairs(self.data) do
-		table.insert(lbl, k .. ' = ' .. getstr(v))
+		vstr = ''
+		if k=='mapindex' then
+			vstr = getmapindexstr(v)
+		else
+			vstr = getstr(v)
+		end
+		table.insert(lbl, k .. ' = ' .. vstr)
 	end
 	return table.concat(lbl,"\\l")
 end

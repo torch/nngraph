@@ -1,20 +1,22 @@
 require 'nngraph'
 function t1()
-	local m0=nn.Linear(20,1)(nn.Tanh()(nn.Linear(20,20)()))
-	local m1=nn.Linear(10,1)(nn.Tanh()(nn.Linear(10,10)()))
+	local x1 = nn.Linear(20,20)()
+	local x2 = nn.Linear(10,10)()
+	local m0=nn.Linear(20,1)(nn.Tanh()(x1))
+	local m1=nn.Linear(10,1)(nn.Tanh()(x2))
 	local madd=nn.CAddTable()({m0,m1})
 	local m2=nn.Sigmoid()(madd)
 	local m3=nn.Tanh()(madd)
 	local x = torch.rand(20)
 	local y = torch.rand(10)
-	local gmod = nn.gModule({m2,m3})
+	gmod = nn.gModule({x1,x2},{m2,m3})
 	gmod.verbose = true
 	print('forward')
 	gmod:updateOutput({x,y})
 	print('updateGradInput')
 	gmod:updateGradInput({x,y},{torch.rand(1),torch.rand(1)})
-	graph.dot(gmod.fg)
-	graph.dot(gmod.bg)
+	graph.dot(gmod.fg,'forward')
+	graph.dot(gmod.bg,'backward')
 end
 
 function t2()
@@ -22,7 +24,7 @@ function t2()
 	local m0 = nn.Linear(5,10)()
 	local m1 = nn.Linear(10,20)()
 	local m2 = nn.Linear(30,50)(nn.JoinTable(1){m0,m1})
-	local gmod = nn.gModule(m2)
+	gmod = nn.gModule({m0,m1},{m2})
 
 	local nn0 = nn.Linear(5,10)
 	local nn1 = nn.Linear(10,20)
@@ -43,14 +45,14 @@ function t2()
 
 		gmod:updateOutput({x,y})
 		nnmod:updateOutput({xx,yy})
-		print('fdiff = ', torch.dist(gmod.output,nnmod.output))
+		print('fdiff = ', torch.dist(gmod.output[1],nnmod.output))
 
 		local odx = torch.rand(50)
 		local odxx = odx:clone()
 
 		gmod:updateGradInput({x,y},odx)
 		nnmod:updateGradInput({xx,yy},odxx)
-		graph.dot(gmod.fg)
+		graph.dot(gmod.fg,tostring(i))
 		for i,v in ipairs(gmod.gradInput) do
 			print('bdiff [' ..i..  '] = ', torch.dist(gmod.gradInput[i],nnmod.gradInput[i]))
 		end
@@ -65,7 +67,7 @@ function t2()
 
 		gmod:updateOutput({x,y})
 		nnmod:updateOutput({xx,yy})
-		print('fdiff = ', torch.dist(gmod.output,nnmod.output))
+		print('fdiff = ', torch.dist(gmod.output[1],nnmod.output))
 
 		local odx = torch.rand(50)
 		local odxx = odx:clone()
@@ -86,4 +88,43 @@ function t2()
 	end
 end
 
-t2()
+function topsort(a)
+	-- first clone the graph
+	-- local g = self:clone()
+	-- local nodes = g.nodes
+	-- local edges = g.edges
+	-- for i,node in ipairs(nodes) do
+	-- 	node.children = {}
+	-- end
+
+	-- reverse the graph
+	rg,map = a:reverse()
+	local rmap = {}
+	for k,v in pairs(map) do
+		rmap[v] = k
+	end
+
+	-- work on the sorted graph
+	sortednodes = {}
+	rootnodes = rg:roots()
+
+	if #rootnodes == 0 then
+		print('Graph has cycles')
+	end
+
+	-- run
+	for i,root in ipairs(rootnodes) do
+		root:dfs(function(node)
+			print(node.id,rmap[node].id)
+			-- print(rmap[node])
+			table.insert(sortednodes,rmap[node]) end)
+	end
+
+	if #sortednodes ~= #a.nodes then
+		print('Graph has cycles')
+	end
+	return sortednodes,rg,rootnodes
+end
+
+
+-- t2()
