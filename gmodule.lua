@@ -41,25 +41,25 @@ function gModule:__init(inputs,outputs)
 	self.output = self.outnode.data.input
 	self.gradInput = self.innode.data.gradOutput
 
-	if #outputs > 1 then
-		self.output = {}
-		for i,node in ipairs(outputs) do
-			table.insert(self.output,node.data.module and node.data.module.output or node.data.input)
-		end
-	else
-		local node = outputs[1]
-		self.output = node.data.module and node.data.module.output or node.data.input
-	end
+	-- if #outputs > 1 then
+	-- 	self.output = {}
+	-- 	for i,node in ipairs(outputs) do
+	-- 		table.insert(self.output,node.data.module and node.data.module.output or node.data.input)
+	-- 	end
+	-- else
+	-- 	local node = outputs[1]
+	-- 	self.output = node.data.module and node.data.module.output or node.data.input
+	-- end
 
-	if #inputs > 1 then
-		self.gradInput = {}
-		for i,node in ipairs(inputs) do
-			table.insert(self.gradInput,node.data.module and node.data.module.gradInput or nil)
-		end
-	else
-		local node = inputs[1]
-		self.gradInput = node.data.module and node.data.module.gradInput or self.innode.data.gradOutput
-	end
+	-- if #inputs > 1 then
+	-- 	self.gradInput = {}
+	-- 	for i,node in ipairs(inputs) do
+	-- 		table.insert(self.gradInput,node.data.module and node.data.module.gradInput or node.data.gradOutput)
+	-- 	end
+	-- else
+	-- 	local node = inputs[1]
+	-- 	self.gradInput = node.data.module and node.data.module.gradInput or self.innode.data.gradOutput
+	-- end
 end
 
 function gModule:updateOutput(input)
@@ -146,6 +146,10 @@ function gModule:updateOutput(input)
 	-- the run forward
 	for i,node in ipairs(self.forwardnodes) do
 		neteval(node)
+	end
+
+	if #self.outnode.children == 1 and self.output == self.outnode.data.input then
+		self.output = self.output[1]
 	end
 	-- innode:bfs(neteval)
 
@@ -245,6 +249,11 @@ function gModule:updateGradInput(input,gradOutput)
 	for i,node in ipairs(self.backwardnodes) do
 		neteval(node)
 	end
+
+	if #self.innode.children == 1 and self.gradInput == self.innode.data.gradOutput then
+		self.gradInput = self.gradInput[1]
+	end
+
 	return self.gradInput
 end
 
