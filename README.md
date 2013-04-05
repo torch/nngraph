@@ -33,8 +33,9 @@ The aim of this library is to provide users of nn library with tools to easily c
 ```lua
 require 'nngraph'
 
-mout = nn.Linear(10,1)(nn.Tanh()(nn.Linear(20,10)()))
-mlp = nn.gModule(mout)
+x1 = nn.Linear(20,10)()
+mout = nn.Linear(10,1)(nn.Tanh()(nn.Linear(10,10)(nn.Tanh()(x1))))
+mlp = nn.gModule({x1},{mout})
 
 x = torch.rand(20)
 dx = torch.rand(1)
@@ -48,19 +49,22 @@ graph.dot(mlp.fg)
 
 ```
 
-![mlp](https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp.png)
+<img src= "https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp.png" width="300px"/>
+<!-- ![mlp](https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp.png) -->
 
 ### A net with 2 inputs and 2 outputs
 
 ```lua
 require 'nngraph'
 
-m0=nn.Linear(20,1)(nn.Tanh()(nn.Linear(20,20)()))
-m1=nn.Linear(10,1)(nn.Tanh()(nn.Linear(10,10)()))
+x1=nn.Linear(20,20)()
+x2=nn.Linear(10,10)()
+m0=nn.Linear(20,1)(nn.Tanh()(x1))
+m1=nn.Linear(10,1)(nn.Tanh()(x2))
 madd=nn.CAddTable()({m0,m1})
 m2=nn.Sigmoid()(madd)
 m3=nn.Tanh()(madd)
-gmod = nn.gModule({m2,m3})
+gmod = nn.gModule({x1,x2},{m2,m3})
 
 x = torch.rand(20)
 y = torch.rand(10)
@@ -71,4 +75,5 @@ graph.dot(gmod.fg)
 
 ```
 
-![bigmlp](https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp2.png)
+<img src= "https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp2.png" width="300px"/>
+<!-- ![bigmlp](https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp2.png) -->
