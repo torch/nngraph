@@ -13,17 +13,21 @@ This library requires torch-graph package to be installed.
 
 ### graphviz
 
-You do *not* need graphviz to be able to use this library, but if you have one then you can display the graphs that you have created.
+You do *not* need graphviz to be able to use this library, but if you have then you can display the graphs that you have created.
 
 ## Installation
 
 Right now, this repo is not distributed as part of torch-pkg or luarocks system. For installation follow these steps.
 
-git clone git://github.com/koraykv/torch-nngraph.git
-cd torch-nngraph
-torch-pkg deploy 
-
-
+```
+	git clone git://github.com/koraykv/torch-nngraph.git
+	cd torch-graph
+	torch-pkg deploy 
+	cd ..
+	git clone git://github.com/koraykv/torch-nngraph.git
+	cd torch-nngraph
+	torch-pkg deploy 
+```
 ## Usage
 
 The aim of this library is to provide users of nn library with tools to easily create complicated architectures. Any given nn module or criterion is going to be bundled into a graph node. The __call operator of an instance of nn.Module and nn.Criterion is used to create architectures as if one is writing function calls.
