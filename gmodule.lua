@@ -193,8 +193,13 @@ function gModule:updateGradInput(input,gradOutput)
 			-- its children
 			for i,child in ipairs(node.children) do
 				child.data.gradOutput = child.data.gradOutput or {}
-				local mapindex = node.data.mapindex[child.data]
-				child.data.gradOutput[mapindex] = node.data.gradOutput
+				local go = node.data.gradOutput
+				if istable(go) and #go == 1 then
+					go = go[1]
+				end
+				table.insert(child.data.gradOutput,go)
+				-- local mapindex = node.data.mapindex[child.data]
+				-- child.data.gradOutput[mapindex] = node.data.gradOutput
 			end
 		elseif node.data.module then
 			local module = node.data.module
