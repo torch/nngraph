@@ -1,4 +1,3 @@
-
 # torch-nngraph
 
 This package provides graphical computation for nn library in Torch7.
@@ -48,7 +47,7 @@ mlp:updateGradInput(x,dx)
 mlp:accGradParameters(x,dx)
 
 -- draw graph
-graph.dot(mlp.fg)
+graph.dot(mlp.fg,'MLP')
 
 
 ```
@@ -75,7 +74,7 @@ y = torch.rand(10)
 
 gmod:updateOutput({x,y})
 gmod:updateGradInput({x,y},{torch.rand(1),torch.rand(1)})
-graph.dot(gmod.fg)
+graph.dot(gmod.fg,'Big MLP')
 
 ```
 
