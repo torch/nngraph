@@ -8,7 +8,7 @@ This package provides graphical computation for nn library in Torch7.
 
 This library requires torch-graph package to be installed.
 
-[[http://github.com/koraykv/torch-graph]]
+http://github.com/koraykv/torch-graph
 
 ### graphviz
 
@@ -19,7 +19,7 @@ You do *not* need graphviz to be able to use this library, but if you have then 
 Right now, this repo is not distributed as part of torch-pkg or luarocks system. For installation follow these steps.
 
 ```
-	git clone git://github.com/koraykv/torch-nngraph.git
+	git clone git://github.com/koraykv/torch-graph.git
 	cd torch-graph
 	torch-pkg deploy 
 	cd ..
