@@ -121,6 +121,29 @@ function t3()
 	end
 end
 
+function t4()
+	require 'nn'
+	require 'nngraph'
+
+	local getInput1 = nn.Identity()()
+	local getInput2 = nn.Identity()()
+	local mlp = nn.Tanh()(getInput1)
+	net = nn.gModule({getInput1, getInput2}, {mlp, getInput2})
+
+
+	local input1 = torch.randn(2)
+	local input2 = torch.randn(5)
+
+	net:forward({input1, input2})
+	local gradInput = net:backward({input1, input2},
+	    {torch.randn(input1:size()), torch.randn(input2:size())})
+	print("gradInput[1]:", gradInput[1])
+	print("gradInput[2]:", gradInput[2])
+	graph.dot(net.fg)
+	assert(gradInput[1]:nElement() == input1:nElement(), "size mismatch")
+
+end
+
 function topsort(a)
 	-- first clone the graph
 	-- local g = self:clone()

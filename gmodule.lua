@@ -183,6 +183,8 @@ function gModule:updateGradInput(input,gradOutput)
 			-- where each thing goes into the input of 
 			-- corresponding children. So this is like a
 			-- dispatcher
+			-- First we need to fix the order of stuff in our
+			-- gradOutput table.
 			for i,child in ipairs(node.children) do
 				child.data.gradOutput = child.data.gradOutput or {}
 				local mapindex = node.data.mapindex[child.data]
@@ -253,6 +255,19 @@ function gModule:updateGradInput(input,gradOutput)
 	end)
 	for i,node in ipairs(self.backwardnodes) do
 		neteval(node)
+	end
+
+	-- now fix the order of gradInput
+	local gi = {}
+	for i,child in ipairs(self.innode.children) do
+		local mi = self.innode.data.mapindex[child.data]
+		table.insert(gi,self.gradInput[mi])
+	end
+	while #self.gradInput > 0 do
+		table.remove(self.gradInput)
+	end
+	for i,v in ipairs(gi) do
+		table.insert(self.gradInput,v)
 	end
 
 	if #self.innode.children == 1 and self.gradInput == self.innode.data.gradOutput then
