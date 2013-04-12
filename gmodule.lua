@@ -41,25 +41,6 @@ function gModule:__init(inputs,outputs)
 	self.output = self.outnode.data.input
 	self.gradInput = self.innode.data.gradOutput
 
-	-- if #outputs > 1 then
-	-- 	self.output = {}
-	-- 	for i,node in ipairs(outputs) do
-	-- 		table.insert(self.output,node.data.module and node.data.module.output or node.data.input)
-	-- 	end
-	-- else
-	-- 	local node = outputs[1]
-	-- 	self.output = node.data.module and node.data.module.output or node.data.input
-	-- end
-
-	-- if #inputs > 1 then
-	-- 	self.gradInput = {}
-	-- 	for i,node in ipairs(inputs) do
-	-- 		table.insert(self.gradInput,node.data.module and node.data.module.gradInput or node.data.gradOutput)
-	-- 	end
-	-- else
-	-- 	local node = inputs[1]
-	-- 	self.gradInput = node.data.module and node.data.module.gradInput or self.innode.data.gradOutput
-	-- end
 end
 
 function gModule:updateOutput(input)
@@ -98,6 +79,9 @@ function gModule:updateOutput(input)
 			-- then this is a data node, just propagate into
 			-- its children
 			local input = #node.data.input == 1 and node.data.input[1] or node.data.input
+			if node.data.selectindex then
+				input = input[node.data.selectindex]
+			end
 			propagate(node,input)
 		elseif node.data.module then
 			local module = node.data.module
@@ -132,7 +116,7 @@ function gModule:updateOutput(input)
 	innode.data.data=input
 	if #input ~= #innode.data.mapindex then
 		print('#inputs      =' .. #input)
-		print('#mapindices  =' .. #innode.data.data)
+		print('#mapindices  =' .. #innode.data.mapindex)
 		error('Number of inputs do not match my graph')
 	end
 	-- first clear the input states
@@ -151,12 +135,6 @@ function gModule:updateOutput(input)
 	if #self.outnode.children == 1 and self.output == self.outnode.data.input then
 		self.output = self.output[1]
 	end
-	-- innode:bfs(neteval)
-
-	-- everything is done, so now I can collect the results
-	-- that are stored in outnode.input
-	-- local outputs = self.outnode.data.input
-	-- self.output = #outputs == 1 and outputs[1] or outputs
 	return self.output
 end
 
@@ -199,9 +177,11 @@ function gModule:updateGradInput(input,gradOutput)
 				if istable(go) and #go == 1 then
 					go = go[1]
 				end
-				table.insert(child.data.gradOutput,go)
-				-- local mapindex = node.data.mapindex[child.data]
-				-- child.data.gradOutput[mapindex] = node.data.gradOutput
+				if node.data.selectindex then
+					child.data.gradOutput[node.data.selectindex] = go
+				else
+					table.insert(child.data.gradOutput,go)
+				end
 			end
 		elseif node.data.module then
 			local module = node.data.module

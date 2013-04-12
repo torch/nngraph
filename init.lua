@@ -24,8 +24,12 @@ end
 
 -- Modify the __call function to hack into nn.Module
 local Module = torch.getmetatable('nn.Module')
-function Module:__call__(input)
+function Module:__call__(input,noutput)
 
+	if not noutput and type(input) == 'number' then
+		noutput = input
+		input = {}
+	end
 	if not istable(input) then
 		input = {input}
 	end
@@ -44,7 +48,18 @@ function Module:__call__(input)
 		end
 		mnode:add(dnode,true)
 	end
-	return mnode
+
+	if noutput == nil then
+		return mnode
+	end
+
+	local selectnodes = {}
+	for i=1,noutput do
+		local node = nngraph.Node({selectindex=i,input={}})
+		node:add(mnode,true)
+		table.insert(selectnodes,node)
+	end
+	return unpack(selectnodes)
 end
 
 -- Modify the __call function to hack into nn.Criterion

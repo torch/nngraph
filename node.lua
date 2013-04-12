@@ -52,7 +52,12 @@ function nnNode:label()
 		if istable(data) then
 			local tstr = {}
 			for i,v in ipairs(data) do
-				table.insert(tstr, tostring(v.module or v.input or v.data))
+				local obj = v.module or v.input or v.data
+				local str = tostring(obj)
+				if obj.modules then
+					str = torch.typename(obj)
+				end
+				table.insert(tstr, str)
 			end
 			return '{' .. table.concat(tstr,',') .. '}'
 		else

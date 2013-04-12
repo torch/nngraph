@@ -122,9 +122,6 @@ function t3()
 end
 
 function t4()
-	require 'nn'
-	require 'nngraph'
-
 	local getInput1 = nn.Identity()()
 	local getInput2 = nn.Identity()()
 	local mlp = nn.Tanh()(getInput1)
@@ -142,6 +139,26 @@ function t4()
 	graph.dot(net.fg)
 	assert(gradInput[1]:nElement() == input1:nElement(), "size mismatch")
 
+end
+
+function t5()
+	local m = nn.Sequential()
+	m:add(nn.SplitTable(1))
+	m:add(nn.ParallelTable():add(nn.Linear(10,20)):add(nn.Linear(10,30)))
+	local input = nn.Identity()()
+	local input1,input2 = m(input,2)
+	local m3 = nn.JoinTable(1)({input1,input2})
+
+	g = nn.gModule({input},{m3})
+	graph.dot(g.fg,'init forward')
+
+	local indata = torch.rand(2,10)
+	local gdata = torch.rand(50)
+	g:forward(indata)
+	g:backward(indata,gdata)
+
+	graph.dot(g.fg,'forward')
+	graph.dot(g.bg,'backward')
 end
 
 function topsort(a)
