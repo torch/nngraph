@@ -196,6 +196,8 @@ function gModule:updateGradInput(input,gradOutput)
 					gradOutput[1]:add(gradOutput[i])
 				end
 				gradOutput = gradOutput[1]
+			elseif istable(gradOutput) and istable(module.output) and #gradOutput ~= #module.output then
+				gradOutput = gradOutput[1]
 			end
 			local gradInput = module:updateGradInput(input,gradOutput)
 			-- propagate the output to children
