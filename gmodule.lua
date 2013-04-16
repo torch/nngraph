@@ -240,12 +240,15 @@ function gModule:updateGradInput(input,gradOutput)
 	end
 
 	-- now fix the order of gradInput
+	if not istable(self.gradInput) then
+		return self.gradInput
+	end
 	local gi = {}
 	for i,child in ipairs(self.innode.children) do
 		local mi = self.innode.data.mapindex[child.data]
 		table.insert(gi,self.gradInput[mi])
 	end
-	while #self.gradInput > 0 do
+	while istable(self.gradInput) and #self.gradInput > 0 do
 		table.remove(self.gradInput)
 	end
 	for i,v in ipairs(gi) do
