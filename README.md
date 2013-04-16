@@ -79,4 +79,49 @@ graph.dot(gmod.fg,'Big MLP')
 ```
 
 <img src= "https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp2.png" width="300px"/>
-<!-- ![bigmlp](https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp2.png) -->
+
+### Another net that uses container modules (like `ParallelTable`) that output a table of outputs.
+
+```lua
+	m = nn.Sequential()
+	m:add(nn.SplitTable(1))
+	m:add(nn.ParallelTable():add(nn.Linear(10,20)):add(nn.Linear(10,30)))
+	input = nn.Identity()()
+	input1,input2 = m(input,2)
+	m3 = nn.JoinTable(1)({input1,input2})
+
+	g = nn.gModule({input},{m3})
+
+	indata = torch.rand(2,10)
+	gdata = torch.rand(50)
+	g:forward(indata)
+	g:backward(indata,gdata)
+
+	graph.dot(g.fg,'Forward Graph')
+	graph.dot(g.bg,'Backward Graph')
+```
+<img src= "https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp3_forward.png" width="300px"/>
+<img src= "https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp3_backward.png" width="300px"/>
+
+### A Multi-layer network where each layer takes output of previous two layers as input.
+```lua
+	input = nn.Identity()()
+	L1 = nn.Tanh()(nn.Linear(10,20)(input))
+	L2 = nn.Tanh()(nn.Linear(30,60)(nn.JoinTable(1)({input,L1})))
+	L3 = nn.Tanh()(nn.Linear(80,160)(nn.JoinTable(1)({L1,L2})))
+
+	g = nn.gModule({input},{L3})
+
+	indata = torch.rand(10)
+	gdata = torch.rand(160)
+	g:forward(indata)
+	g:backward(indata,gdata)
+
+	graph.dot(g.fg,'Forward Graph')
+	graph.dot(g.bg,'Backward Graph')
+```
+
+<img src= "https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp4_forward.png" width="300px"/>
+<img src= "https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp4_backward.png" width="300px"/>
+
+
