@@ -1,7 +1,8 @@
 
-local function istable(x)
-	return type(x) == 'table' and not torch.typename(x)
-end
+local utils = paths.dofile('utils.lua')
+local istensor = utils.istensor
+local istable = utils.istable
+local istorchclass = utils.istorchclass
 
 local gModule, parent = torch.class('nn.gModule','nn.Module')
 

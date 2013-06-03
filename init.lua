@@ -6,21 +6,15 @@ nngraph = {}
 
 torch.include('nngraph','node.lua')
 torch.include('nngraph','gmodule.lua')
+torch.include('nngraph','modules.lua')
 
-local function istensor(x)
-	if torch.typename(x) and torch.typename(x):find('Tensor') then
-		return true
-	end
-	return false
-end
+-- handy functions
+local utils = paths.dofile('utils.lua')
+local istensor = utils.istensor
+local istable = utils.istable
+local istorchclass = utils.istorchclass
 
-local function istorchclass(x)
-	return type(x) == 'table' and torch.typename(x)
-end
 
-local function istable(x)
-	return type(x) == 'table' and not torch.typename(x)
-end
 
 -- Modify the __call function to hack into nn.Module
 local Module = torch.getmetatable('nn.Module')
@@ -53,13 +47,8 @@ function Module:__call__(input,noutput)
 		return mnode
 	end
 
-	local selectnodes = {}
-	for i=1,noutput do
-		local node = nngraph.Node({selectindex=i,input={}})
-		node:add(mnode,true)
-		table.insert(selectnodes,node)
-	end
-	return unpack(selectnodes)
+	-- backward compatibility for a while, reaise an error.
+	error('Use node:split(noutput) to split the output of a node into multiple nodes')
 end
 
 -- Modify the __call function to hack into nn.Criterion

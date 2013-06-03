@@ -146,7 +146,7 @@ function t5()
 	m:add(nn.SplitTable(1))
 	m:add(nn.ParallelTable():add(nn.Linear(10,20)):add(nn.Linear(10,30)))
 	local input = nn.Identity()()
-	local input1,input2 = m(input,2)
+	local input1,input2 = m(input):split(2)
 	local m3 = nn.JoinTable(1)({input1,input2})
 
 	g = nn.gModule({input},{m3})

@@ -1,14 +1,9 @@
 
-local function istensor(x)
-	if torch.typename(x) and torch.typename(x):find('Tensor') then
-		return true
-	end
-	return false
-end
+local utils = paths.dofile('utils.lua')
+local istensor = utils.istensor
+local istable = utils.istable
+local istorchclass = utils.istorchclass
 
-local function istable(x)
-	return type(x) == 'table' and not torch.typename(x)
-end
 
 local nnNode,parent = torch.class('nngraph.Node','graph.Node')
 
@@ -17,16 +12,34 @@ function nnNode:__init(data)
 	self.data.mapindex = self.data.mapindex or {}
 end
 
+-- domap ensures that this node will keep track of the order its children are added.
+-- mapindex is a forward/backward list
+-- index = self.data.mapindex[child.data]
+-- child.data = self.data.mapindex[index]
 function nnNode:add(child,domap)
 	parent.add(self,child)
 	if domap then
-		mapindex = self.data.mapindex
+		local mapindex = self.data.mapindex
 		local data = child.data
 		if not mapindex[data] then
 			table.insert(mapindex,data)
 			mapindex[data] = #mapindex
 		end
 	end
+end
+
+-- this function returns noutput number of new nodes
+-- that each take a single component of the output of this 
+-- node in the order they are returned.
+function nnNode:split(noutput)
+	local mnode = self
+	local selectnodes = {}
+	for i=1,noutput do
+		local node = nngraph.Node({selectindex=i,input={}})
+		node:add(mnode,true)
+		table.insert(selectnodes,node)
+	end
+	return unpack(selectnodes)
 end
 
 function nnNode:label()
