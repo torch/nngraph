@@ -44,7 +44,19 @@ function gModule:__init(inputs,outputs)
 
 end
 
+function gModule:apply(func)
+	for i,node in ipairs(self.forwardnodes) do
+		if node.data.module then
+			func(node.data.module)
+		end
+	end
+end
+
 function gModule:updateOutput(input)
+	self:runForwardFunction('updateOutput',input)
+end
+
+function gModule:runForwardFunction(func_name,input)
 	-- we will assume that the input is either a table of stuff
 	-- if not we will put it in a table of stuff
 	if torch.typename(input) or type(input) ~= 'table' then
@@ -91,7 +103,7 @@ function gModule:updateOutput(input)
 				input = input[1]
 			end
 			-- forward through this node
-			local output = module:updateOutput(input)
+			local output = module[func_name](module,input)
 			-- propagate the output to children
 			propagate(node,output)
 		elseif node.data.criterion then
