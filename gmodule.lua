@@ -53,7 +53,7 @@ function gModule:apply(func)
 end
 
 function gModule:updateOutput(input)
-	self:runForwardFunction('updateOutput',input)
+	return self:runForwardFunction('updateOutput',input)
 end
 
 function gModule:runForwardFunction(func_name,input)
