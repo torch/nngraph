@@ -144,7 +144,8 @@ function gModule:runForwardFunction(func_name,input)
 	for i,node in ipairs(self.forwardnodes) do
 		neteval(node)
 	end
-
+	
+	self.output = self.outnode.data.input
 	if #self.outnode.children == 1 and self.output == self.outnode.data.input then
 		self.output = self.output[1]
 	end
@@ -253,6 +254,7 @@ function gModule:updateGradInput(input,gradOutput)
 	end
 
 	-- now fix the order of gradInput
+	self.gradInput = self.innode.data.gradOutput
 	if not istable(self.gradInput) then
 		return self.gradInput
 	end
