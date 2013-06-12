@@ -144,7 +144,7 @@ function gModule:runForwardFunction(func_name,input)
 	for i,node in ipairs(self.forwardnodes) do
 		neteval(node)
 	end
-	
+
 	self.output = self.outnode.data.input
 	if #self.outnode.children == 1 and self.output == self.outnode.data.input then
 		self.output = self.output[1]
@@ -206,10 +206,17 @@ function gModule:updateGradInput(input,gradOutput)
 			end
 			-- updateGradInput through this node
 			if istable(gradOutput) and not istable(module.output) then
-				for i=2,#gradOutput do
-					gradOutput[1]:add(gradOutput[i])
+				if #gradOutput > 1 then
+					node.data.gradOutputBuffer = node.data.gradOutputBuffer or gradOutput[1].new()
+					local gobuff = node.data.gradOutputBuffer
+					gobuff:resizeAs(gradOutput[1]):copy(gradOutput[1])
+					for i=2,#gradOutput do
+						gobuff:add(gradOutput[i])
+					end
+					gradOutput = gobuff
+				else
+					gradOutput = gradOutput[1]
 				end
-				gradOutput = gradOutput[1]
 			elseif istable(gradOutput) and istable(module.output) and #gradOutput ~= #module.output then
 				gradOutput = gradOutput[1]
 			end
