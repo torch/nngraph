@@ -303,10 +303,17 @@ function gModule:accGradParameters(input,gradOutput,lr)
 			end
 			-- accGradParameters through this node
 			if istable(gradOutput) and not istable(module.output) then
-				for i=2,#gradOutput do
-					gradOutput[1]:add(gradOutput[i])
-				end
-				gradOutput = gradOutput[1]
+				if #gradOutput > 1 then
+					node.data.gradOutputBuffer = node.data.gradOutputBuffer or gradOutput[1].new()
+					local gobuff = node.data.gradOutputBuffer
+					gobuff:resizeAs(gradOutput[1]):copy(gradOutput[1])
+					for i=2,#gradOutput do
+						gobuff:add(gradOutput[i])
+					end
+					gradOutput = gobuff
+				else
+					gradOutput = gradOutput[1]
+ 				end
 			end
 			module:accGradParameters(input,gradOutput,lr)
 		else
