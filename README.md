@@ -87,7 +87,7 @@ graph.dot(gmod.fg,'Big MLP')
 	m:add(nn.SplitTable(1))
 	m:add(nn.ParallelTable():add(nn.Linear(10,20)):add(nn.Linear(10,30)))
 	input = nn.Identity()()
-	input1,input2 = m(input,2)
+	input1,input2 = m(input):split(2)
 	m3 = nn.JoinTable(1)({input1,input2})
 
 	g = nn.gModule({input},{m3})

@@ -226,7 +226,7 @@ function gModule:updateGradInput(input,gradOutput)
 				child.data.gradOutput = child.data.gradOutput or {}
 				local mapindex = node.data.mapindex[child.data]
 				local gi
-				if istable(gradInput) and istable(input) then
+				if #node.children ~= 1 then --istable(gradInput) and istable(input) then
 					gi = gradInput[mapindex]
 				else
 					gi = gradInput
