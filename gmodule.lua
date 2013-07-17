@@ -7,19 +7,16 @@ local istorchclass = utils.istorchclass
 local function getTotalGradOutput(node)
 	local module = node.data.module
 	local gradOutput = node.data.gradOutput
-	if istable(gradOutput) and not istable(module.output) then
-		if #gradOutput > 1 then
-			node.data.gradOutputBuffer = node.data.gradOutputBuffer or gradOutput[1].new()
-			local gobuff = node.data.gradOutputBuffer
-			gobuff:resizeAs(gradOutput[1]):copy(gradOutput[1])
-			for i=2,#gradOutput do
-				gobuff:add(gradOutput[i])
-			end
-			gradOutput = gobuff
-		else
-			gradOutput = gradOutput[1]
+	assert(istable(gradOutput), "expecting gradients to sum")
+	if #gradOutput > 1 then
+		node.data.gradOutputBuffer = node.data.gradOutputBuffer or gradOutput[1].new()
+		local gobuff = node.data.gradOutputBuffer
+		gobuff:resizeAs(gradOutput[1]):copy(gradOutput[1])
+		for i=2,#gradOutput do
+			gobuff:add(gradOutput[i])
 		end
-	elseif istable(gradOutput) and istable(module.output) and #gradOutput ~= #module.output then
+		gradOutput = gobuff
+	else
 		gradOutput = gradOutput[1]
 	end
 	return gradOutput
@@ -207,12 +204,12 @@ function gModule:updateGradInput(input,gradOutput)
 			-- its children
 			for i,child in ipairs(node.children) do
 				child.data.gradOutput = child.data.gradOutput or {}
-				local go = node.data.gradOutput
-				if istable(go) and #go == 1 then
-					go = go[1]
-				end
+				local go = getTotalGradOutput(node)
 				if node.data.selectindex then
-					child.data.gradOutput[node.data.selectindex] = go
+					assert(#child.data.gradOutput <= 1, "the splitted node should be used only once")
+					-- The data.gradOutput holds the to-be-summed gradients.
+					child.data.gradOutput[1] = child.data.gradOutput[1] or {}
+					child.data.gradOutput[1][node.data.selectindex] = go
 				else
 					table.insert(child.data.gradOutput,go)
 				end
