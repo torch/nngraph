@@ -263,23 +263,23 @@ function gModule:updateGradInput(input,gradOutput)
 	end
 
 	-- now fix the order of gradInput
+	-- The innode is used as the input by all the input nodes.
+	-- The data.gradOutput holds the gradients to-be-summed.
+	-- Here, instead of summing them, we reorder them based on the mapindex.
 	self.gradInput = self.innode.data.gradOutput
-	if not istable(self.gradInput) then
-		return self.gradInput
-	end
 	local gi = {}
 	for i,child in ipairs(self.innode.children) do
 		local mi = self.innode.data.mapindex[child.data]
 		table.insert(gi,self.gradInput[mi])
 	end
-	while istable(self.gradInput) and #self.gradInput > 0 do
+	while #self.gradInput > 0 do
 		table.remove(self.gradInput)
 	end
 	for i,v in ipairs(gi) do
 		table.insert(self.gradInput,v)
 	end
 
-	if #self.innode.children == 1 and self.gradInput == self.innode.data.gradOutput then
+	if #self.innode.children == 1 then
 		self.gradInput = self.gradInput[1]
 	end
 
