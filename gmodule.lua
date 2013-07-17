@@ -299,7 +299,10 @@ function gModule:accGradParameters(input,gradOutput,lr)
 		elseif not node.data.module and node.data.gradOutput then
 		elseif node.data.module then
 			local module = node.data.module
-			local gradOutput = getTotalGradOutput(node)
+			local gradOutput = node.data.gradOutput[1]
+			if #node.data.gradOutput > 1 then
+				gradOutput = node.data.gradOutputBuffer
+			end
 			local input = node.data.input
 			if #input == 1 then
 				input = input[1]
