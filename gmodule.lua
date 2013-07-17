@@ -151,7 +151,7 @@ function gModule:runForwardFunction(func,input)
 	end
 
 	self.output = self.outnode.data.input
-	if #self.outnode.children == 1 and self.output == self.outnode.data.input then
+	if #self.outnode.children == 1 then
 		self.output = self.output[1]
 	end
 	return self.output
