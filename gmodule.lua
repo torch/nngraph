@@ -61,10 +61,11 @@ function gModule:runForwardFunction(func,input)
 		local func_name = func
 		func = function(module,input) return module[func_name](module,input) end
 	end
-	-- we will assume that the input is either a table of stuff
-	-- if not we will put it in a table of stuff
-	if torch.typename(input) or type(input) ~= 'table' then
+	-- We see the input as a list of inputs.
+	if #self.innode.data.mapindex <= 1 then
 		input={input}
+	elseif type(input) ~= "table" then
+		error(string.format("expecting %s inputs", #self.innode.data.mapindex))
 	end
 	local function neteval(node)
 		local function propagate(node,x)
@@ -157,10 +158,11 @@ function gModule:runForwardFunction(func,input)
 end
 
 function gModule:updateGradInput(input,gradOutput)
-	-- we will assume that the input is either a table of stuff
-	-- if not we will put it in a table of stuff
-	if torch.typename(gradOutput) or type(gradOutput) ~= 'table' then
+	-- We see the gradOutput as a list of gradOutputs
+	if #self.outnode.children <= 1 then
 		gradOutput={gradOutput}
+	elseif type(gradOutput) ~= "table" then
+		error(string.format("expecting %s gradOutputs", #self.outnode.children))
 	end
 	local outputs = {}
 	local function neteval(node)
@@ -289,10 +291,11 @@ function gModule:updateGradInput(input,gradOutput)
 end
 
 function gModule:accGradParameters(input,gradOutput,lr)
-	-- we will assume that the input is either a table of stuff
-	-- if not we will put it in a table of stuff
-	if torch.typename(gradOutput) or type(gradOutput) ~= 'table' then
+	-- We see the gradOutput as a list of gradOutputs
+	if #self.outnode.children <= 1 then
 		gradOutput={gradOutput}
+	elseif type(gradOutput) ~= "table" then
+		error(string.format("expecting %s gradOutputs", #self.outnode.children))
 	end
 	local outputs = {}
 	local function neteval(node)
