@@ -56,7 +56,11 @@ function gModule:updateOutput(input)
 	return self:runForwardFunction('updateOutput',input)
 end
 
-function gModule:runForwardFunction(func_name,input)
+function gModule:runForwardFunction(func,input)
+	if type(func) == "string" then
+		local func_name = func
+		func = function(module,input) return module[func_name](module,input) end
+	end
 	-- we will assume that the input is either a table of stuff
 	-- if not we will put it in a table of stuff
 	if torch.typename(input) or type(input) ~= 'table' then
@@ -103,7 +107,7 @@ function gModule:runForwardFunction(func_name,input)
 				input = input[1]
 			end
 			-- forward through this node
-			local output = module[func_name](module,input)
+			local output = func(module,input)
 			-- propagate the output to children
 			propagate(node,output)
 		elseif node.data.criterion then
