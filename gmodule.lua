@@ -4,6 +4,27 @@ local istensor = utils.istensor
 local istable = utils.istable
 local istorchclass = utils.istorchclass
 
+local function getTotalGradOutput(node)
+	local module = node.data.module
+	local gradOutput = node.data.gradOutput
+	if istable(gradOutput) and not istable(module.output) then
+		if #gradOutput > 1 then
+			node.data.gradOutputBuffer = node.data.gradOutputBuffer or gradOutput[1].new()
+			local gobuff = node.data.gradOutputBuffer
+			gobuff:resizeAs(gradOutput[1]):copy(gradOutput[1])
+			for i=2,#gradOutput do
+				gobuff:add(gradOutput[i])
+			end
+			gradOutput = gobuff
+		else
+			gradOutput = gradOutput[1]
+		end
+	elseif istable(gradOutput) and istable(module.output) and #gradOutput ~= #module.output then
+		gradOutput = gradOutput[1]
+	end
+	return gradOutput
+end
+
 local gModule, parent = torch.class('nn.gModule','nn.Module')
 
 function gModule:__init(inputs,outputs)
@@ -198,27 +219,12 @@ function gModule:updateGradInput(input,gradOutput)
 			end
 		elseif node.data.module then
 			local module = node.data.module
-			local gradOutput = node.data.gradOutput
+			local gradOutput = getTotalGradOutput(node)
 			local input = node.data.input
 			if #input == 1 then
 				input = input[1]
 			end
 			-- updateGradInput through this node
-			if istable(gradOutput) and not istable(module.output) then
-				if #gradOutput > 1 then
-					node.data.gradOutputBuffer = node.data.gradOutputBuffer or gradOutput[1].new()
-					local gobuff = node.data.gradOutputBuffer
-					gobuff:resizeAs(gradOutput[1]):copy(gradOutput[1])
-					for i=2,#gradOutput do
-						gobuff:add(gradOutput[i])
-					end
-					gradOutput = gobuff
-				else
-					gradOutput = gradOutput[1]
-				end
-			elseif istable(gradOutput) and istable(module.output) and #gradOutput ~= #module.output then
-				gradOutput = gradOutput[1]
-			end
 			local gradInput = module:updateGradInput(input,gradOutput)
 			-- propagate the output to children
 			for i,child in ipairs(node.children) do
@@ -296,25 +302,12 @@ function gModule:accGradParameters(input,gradOutput,lr)
 		elseif not node.data.module and node.data.gradOutput then
 		elseif node.data.module then
 			local module = node.data.module
-			local gradOutput = node.data.gradOutput
+			local gradOutput = getTotalGradOutput(node)
 			local input = node.data.input
 			if #input == 1 then
 				input = input[1]
 			end
 			-- accGradParameters through this node
-			if istable(gradOutput) and not istable(module.output) then
-				if #gradOutput > 1 then
-					node.data.gradOutputBuffer = node.data.gradOutputBuffer or gradOutput[1].new()
-					local gobuff = node.data.gradOutputBuffer
-					gobuff:resizeAs(gradOutput[1]):copy(gradOutput[1])
-					for i=2,#gradOutput do
-						gobuff:add(gradOutput[i])
-					end
-					gradOutput = gobuff
-				else
-					gradOutput = gradOutput[1]
- 				end
-			end
 			module:accGradParameters(input,gradOutput,lr)
 		else
 			if self.verbose then
