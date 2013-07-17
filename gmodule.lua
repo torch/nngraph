@@ -166,13 +166,6 @@ function gModule:updateGradInput(input,gradOutput)
 	end
 	local outputs = {}
 	local function neteval(node)
-		local function propagate(node,x)
-			for i,child in ipairs(node.children) do
-				child.data.gradOutput = child.data.gradOutput or {}
-				local mapindex = node.data.mapindex[child.data]
-				table.insert(child.data.gradOutput,x[mapindex])
-			end
-		end
 		if node.data.data then
 			-- then this is a data node, just propagate into
 			-- its children
