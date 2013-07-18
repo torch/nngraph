@@ -111,7 +111,7 @@ function gModule:runForwardFunction(func,input)
 					child.data.input = {node.data.data[mapindex]}
 				end
 			end
-		elseif not node.data.module and not node.data.criterion and node.data.input then
+		elseif not node.data.module and node.data.input then
 			-- then this is a data node, just propagate into
 			-- its children
 			local input = #node.data.input == 1 and node.data.input[1] or node.data.input
@@ -127,13 +127,6 @@ function gModule:runForwardFunction(func,input)
 			end
 			-- forward through this node
 			local output = func(module,input)
-			-- propagate the output to children
-			propagate(node,output)
-		elseif node.data.criterion then
-			local module = node.data.criterion
-			local input = node.data.input
-			-- forward through this node
-			local output = module:updateOutput(unpack(input))
 			-- propagate the output to children
 			propagate(node,output)
 		else

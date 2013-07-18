@@ -29,7 +29,7 @@ Right now, this repo is not distributed as part of torch-pkg or luarocks system.
 ```
 ## Usage
 
-The aim of this library is to provide users of nn library with tools to easily create complicated architectures. Any given nn module or criterion is going to be bundled into a graph node. The __call operator of an instance of nn.Module and nn.Criterion is used to create architectures as if one is writing function calls.
+The aim of this library is to provide users of nn library with tools to easily create complicated architectures. Any given nn module is going to be bundled into a graph node. The __call operator of an instance of nn.Module is used to create architectures as if one is writing function calls.
 
 ### One hidden layer network
 
