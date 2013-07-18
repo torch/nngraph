@@ -28,7 +28,6 @@ function Module:__call__(input,noutput)
 	end
 	local mnode = nngraph.Node({module=self})
 
-	local dnodes = {}
 	for i,dnode in ipairs(input) do
 		if torch.typename(dnode) ~= 'nngraph.Node' then
 			error('what is this in the input? ' .. dnode)
