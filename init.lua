@@ -31,13 +31,7 @@ function Module:__call__(input,noutput)
 	local dnodes = {}
 	for i,dnode in ipairs(input) do
 		if torch.typename(dnode) ~= 'nngraph.Node' then
-			if istensor(dnode) then
-				dnode = nngraph.Node({input=dnode})
-			elseif istorchclass(dnode) then
-				dnode = nngraph.Node({module=dnode})
-			else
-				error('what is this in the input? ' .. dnode)
-			end
+			error('what is this in the input? ' .. dnode)
 		end
 		mnode:add(dnode,true)
 	end

@@ -137,10 +137,7 @@ function gModule:runForwardFunction(func,input)
 			-- propagate the output to children
 			propagate(node,output)
 		else
-			if self.verbose then
-				print('weird node, skipping :)')
-				print(node.data)
-			end
+			error('weird node: ' .. node.data)
 		end
 		if self.verbose then
 			print(' V : ' .. node:label())
@@ -236,10 +233,7 @@ function gModule:updateGradInput(input,gradOutput)
 				table.insert(child.data.gradOutput,gi)
 			end
 		else
-			if self.verbose then
-				print('weird node, skipping :)')
-				print(node.data)
-			end
+			error('weird node: ' .. node.data)
 		end
 		if self.verbose then
 			print(' V : ' .. node:label())
@@ -310,10 +304,7 @@ function gModule:accGradParameters(input,gradOutput,lr)
 			-- accGradParameters through this node
 			module:accGradParameters(input,gradOutput,lr)
 		else
-			if self.verbose then
-				print('weird node, skipping :)')
-				print(node.data)
-			end
+			error('weird node: ' .. node.data)
 		end
 		if self.verbose then
 			print(' V : ' .. node:label())
