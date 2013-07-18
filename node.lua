@@ -21,10 +21,9 @@ function nnNode:add(child,domap)
 	if domap then
 		local mapindex = self.data.mapindex
 		local data = child.data
-		if not mapindex[data] then
-			table.insert(mapindex,data)
-			mapindex[data] = #mapindex
-		end
+		assert(not mapindex[data], "Don't pass the same input twice.")
+		table.insert(mapindex,data)
+		mapindex[data] = #mapindex
 	end
 end
 
@@ -32,6 +31,7 @@ end
 -- that each take a single component of the output of this 
 -- node in the order they are returned.
 function nnNode:split(noutput)
+	assert(noutput >= 2, "splitting to one output is not supported")
 	local mnode = self
 	local selectnodes = {}
 	for i=1,noutput do
@@ -79,7 +79,7 @@ function nnNode:label()
 	end
 
 	for k,v in pairs(self.data) do
-		vstr = ''
+		local vstr = ''
 		if k=='mapindex' then
 			vstr = getmapindexstr(v)
 		else
