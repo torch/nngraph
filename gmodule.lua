@@ -21,6 +21,23 @@ local function getTotalGradOutput(node)
 	return gradOutput
 end
 
+-- The gModule allows to have a general non-cyclic graph of of modules.
+--
+-- Each node of the graph can have multiple inputs.
+-- The order of inputs is remembered in node.data.mapindex.
+--
+-- Each node have only one output.
+-- The output can be also a table.
+-- To route parts of the outputted table to different modules,
+-- use the node:split(nOutputs) function.
+-- The split will create subnodes with narrowed output.
+--
+-- Implementation details:
+-- The node.data.input holds a list of inputs.
+-- If a module expects only one input, the node.data.input[1] is used.
+--
+-- The node.data.gradOutput holds the to-be-summed gradOutputs.
+-- Each node has only one output. So we need only one gradOutput.
 local gModule, parent = torch.class('nn.gModule','nn.Module')
 
 function gModule:__init(inputs,outputs)
@@ -66,9 +83,11 @@ function gModule:__init(inputs,outputs)
 	self.forwardnodes = self.fg:topsort()
 	self.backwardnodes = self.bg:topsort()
 
-	self.output = self.outnode.data.input
-	self.gradInput = self.innode.data.gradOutput
-
+	self.output = nil
+	self.gradInput = nil
+	if #self.outnode.children > 1 then
+		self.output = self.outnode.data.input
+	end
 end
 
 function gModule:apply(func)
