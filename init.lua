@@ -6,7 +6,6 @@ nngraph = {}
 
 torch.include('nngraph','node.lua')
 torch.include('nngraph','gmodule.lua')
-torch.include('nngraph','modules.lua')
 
 -- handy functions
 local utils = paths.dofile('utils.lua')
