@@ -30,7 +30,7 @@ function Module:__call__(input,noutput)
 
 	for i,dnode in ipairs(input) do
 		if torch.typename(dnode) ~= 'nngraph.Node' then
-			error('what is this in the input? ' .. dnode)
+			error('what is this in the input? ' .. tostring(dnode))
 		end
 		mnode:add(dnode,true)
 	end
