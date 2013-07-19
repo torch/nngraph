@@ -126,6 +126,7 @@ function gModule:runForwardFunction(func,input)
 			assert(not node.data.module, "the selectindex-handling nodes should have no module")
 			local input = node.data.input
 			assert(#input == 1, "only the splitted node should be the input")
+			assert(istable(input[1]), "the input for a split should be a table")
 			input = input[1][node.data.selectindex]
 			propagate(node,input)
 		else
