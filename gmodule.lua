@@ -98,6 +98,11 @@ function gModule:apply(func)
 	end
 end
 
+function gModule:type(type)
+	self:apply(function(module) module:type(type) end)
+	return self
+end
+
 function gModule:updateOutput(input)
 	return self:runForwardFunction('updateOutput',input)
 end
