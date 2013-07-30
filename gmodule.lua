@@ -103,6 +103,10 @@ function gModule:type(type)
 	return self
 end
 
+function gModule:zeroGradParameters()
+	self:apply(function(module) module:zeroGradParameters() end)
+end
+
 function gModule:updateOutput(input)
 	return self:runForwardFunction('updateOutput',input)
 end
