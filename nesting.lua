@@ -30,6 +30,18 @@ function nesting.fillNested(obj, value)
 	end
 end
 
+-- Resizes all tensors in the output.
+function nesting.resizeNestedAs(output, input)
+	if istensor(output) then
+		output:resizeAs(input)
+	else
+		for key, child in pairs(input) do
+			assert(output[key] ~= nil, "missing key")
+			nesting.resizeNestedAs(output[key], child)
+		end
+	end
+end
+
 -- Adds the input to the output.
 -- The input can contain nested tables.
 -- The output will contain the same nesting of tables.

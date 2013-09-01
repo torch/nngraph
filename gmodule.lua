@@ -11,6 +11,7 @@ local function getTotalGradOutput(node)
 	if #gradOutput > 1 then
 		node.data.gradOutputBuffer = node.data.gradOutputBuffer or nesting.cloneNested(gradOutput[1])
 		local gobuff = node.data.gradOutputBuffer
+		nesting.resizeNestedAs(gobuff, gradOutput[1])
 		nesting.fillNested(gobuff, 0)
 		for i=1,#gradOutput do
 			nesting.addNestedTo(gobuff, gradOutput[i])
