@@ -1,4 +1,5 @@
 
+local nesting = paths.dofile('nesting.lua')
 local utils = paths.dofile('utils.lua')
 local istensor = utils.istensor
 local istable = utils.istable
@@ -8,11 +9,12 @@ local function getTotalGradOutput(node)
 	local gradOutput = node.data.gradOutput
 	assert(istable(gradOutput), "expecting gradients to sum")
 	if #gradOutput > 1 then
-		node.data.gradOutputBuffer = node.data.gradOutputBuffer or gradOutput[1].new()
+		node.data.gradOutputBuffer = node.data.gradOutputBuffer or nesting.cloneNested(gradOutput[1])
 		local gobuff = node.data.gradOutputBuffer
-		gobuff:resizeAs(gradOutput[1]):copy(gradOutput[1])
-		for i=2,#gradOutput do
-			gobuff:add(gradOutput[i])
+		nesting.resizeNestedAs(gobuff, gradOutput[1])
+		nesting.fillNested(gobuff, 0)
+		for i=1,#gradOutput do
+			nesting.addNestedTo(gobuff, gradOutput[i])
 		end
 		gradOutput = gobuff
 	else
