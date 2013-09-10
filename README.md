@@ -46,7 +46,7 @@ mlp:updateOutput(x)
 mlp:updateGradInput(x,dx)
 mlp:accGradParameters(x,dx)
 
--- draw graph
+-- draw graph (the forward graph, '.fg')
 graph.dot(mlp.fg,'MLP')
 
 
@@ -54,6 +54,12 @@ graph.dot(mlp.fg,'MLP')
 
 <img src= "https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp.png" width="300px"/>
 <!-- ![mlp](https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp.png) -->
+
+Read this diagram from top to bottom, with the first and last nodes being dummy nodes that regroup all inputs and outputs of the graph.
+The 'module' entry describes the function of the node, as applies to 'input', and producing an result of the shape 'gradOutput'; 'mapindex' contains
+pointers to the parent nodes. 
+
+
 
 ### A net with 2 inputs and 2 outputs
 
