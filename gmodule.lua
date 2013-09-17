@@ -78,6 +78,7 @@ function gModule:__init(inputs,outputs)
 	assert(#self.fg:roots() == 1, "expecting only one start")
 	self.innode = self.fg:roots()[1]
 	assert(self.innode.data == innode.data, "expecting the forward innode")
+        assert(#self.innode.children == #inputs, "an input is unused")
 	self.outnode = outnode
 	self.verbose = false
 
