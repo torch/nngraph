@@ -78,13 +78,21 @@ function gModule:__init(inputs,outputs)
 	assert(#self.fg:roots() == 1, "expecting only one start")
 	self.innode = self.fg:roots()[1]
 	assert(self.innode.data == innode.data, "expecting the forward innode")
-        assert(#self.innode.children == #inputs, "an input is unused")
 	self.outnode = outnode
 	self.verbose = false
+	self.nInputs = #inputs
 
 	-- computation on the graph is done through topsort of forward and backward graphs
 	self.forwardnodes = self.fg:topsort()
 	self.backwardnodes = self.bg:topsort()
+	-- Checking for unused inputs or unused split() outputs.
+	for i,forwardNode in ipairs(self.forwardnodes) do
+		if forwardNode.data.nSplitOutputs and forwardNode.data.nSplitOutputs ~=  #forwardNode.children then
+			local nUnused = forwardNode.data.nSplitOutputs - #forwardNode.children
+			error(string.format("%s of split(%s) outputs are unused", nUnused,
+				forwardNode.data.nSplitOutputs))
+		end
+	end
 
 	self.output = nil
 	self.gradInput = nil
@@ -120,10 +128,10 @@ function gModule:runForwardFunction(func,input)
 		func = function(module,input) return module[func_name](module,input) end
 	end
 	-- We see the input as a list of inputs.
-	if #self.innode.children <= 1 then
+	if self.nInputs <= 1 then
 		input={input}
 	elseif type(input) ~= "table" then
-		error(string.format("expecting %s inputs", #self.innode.children))
+		error(string.format("expecting %s inputs", self.nInputs))
 	end
 	local function neteval(node)
 		local function propagate(node,x)
@@ -163,8 +171,8 @@ function gModule:runForwardFunction(func,input)
 	end
 
 	local innode = self.innode
-	if #input ~= #innode.children then
-		error(string.format('Got %s inputs instead of %s', #input, #innode.children))
+	if #input ~= self.nInputs then
+		error(string.format('Got %s inputs instead of %s', #input, self.nInputs))
 	end
 	-- first clear the input states
 	innode:bfs(function(node)
