@@ -32,7 +32,9 @@ end
 -- node in the order they are returned.
 function nnNode:split(noutput)
 	assert(noutput >= 2, "splitting to one output is not supported")
-	local mnode = self
+	local mnode = nngraph.Node({nSplitOutputs=noutput})
+	mnode:add(self,true)
+
 	local selectnodes = {}
 	for i=1,noutput do
 		local node = nngraph.Node({selectindex=i,input={}})
