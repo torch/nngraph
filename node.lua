@@ -62,32 +62,28 @@ function nnNode:label()
 			return tostring(data):gsub('\n','\\l')
 		end
 	end
-	local function getmapindexstr(data)
-		if not data then return '' end
-		if istable(data) then
-			local tstr = {}
-			for i,v in ipairs(data) do
-				local obj = v.module or v.input or v.data
-				local str = tostring(obj)
-				if obj.modules then
-					str = torch.typename(obj)
-				end
-				table.insert(tstr, str)
-			end
-			return '{' .. table.concat(tstr,',') .. '}'
-		else
-			return tostring(data):gsub('\n','\\l')
+	local function getmapindexstr(mapindex)
+		local tstr = {}
+		for i,data in ipairs(mapindex) do
+			local inputId = 'Node' .. (data.forwardNodeId or '')
+			table.insert(tstr, inputId)
 		end
+		return '{' .. table.concat(tstr,',') .. '}'
 	end
 
 	for k,v in pairs(self.data) do
 		local vstr = ''
 		if k=='mapindex' then
-			vstr = getmapindexstr(v)
+			if #v > 1 then 
+				vstr = getmapindexstr(v)
+				table.insert(lbl, k .. ' = ' .. vstr)
+			end
+		elseif k=='forwardNodeId' then
+			-- the forwardNodeId is not displayed in the label.
 		else
 			vstr = getstr(v)
+			table.insert(lbl, k .. ' = ' .. vstr)
 		end
-		table.insert(lbl, k .. ' = ' .. vstr)
 	end
 	return table.concat(lbl,"\\l")
 end

@@ -93,6 +93,10 @@ function gModule:__init(inputs,outputs)
 				forwardNode.data.nSplitOutputs))
 		end
 	end
+	-- Adding data.forwardNodeId for nicer node:label() output.
+	for i,forwardNode in ipairs(self.forwardnodes) do
+		forwardNode.data.forwardNodeId = forwardNode.id
+	end
 
 	self.output = nil
 	self.gradInput = nil
