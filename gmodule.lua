@@ -127,11 +127,13 @@ function gModule:runForwardFunction(func,input)
 		local func_name = func
 		func = function(module,input) return module[func_name](module,input) end
 	end
+	-- For backward compatibility, we allow self.nInputs to be missing.
+	local nInputs = self.nInputs or #self.innode.children
 	-- We see the input as a list of inputs.
-	if self.nInputs <= 1 then
+	if nInputs <= 1 then
 		input={input}
 	elseif type(input) ~= "table" then
-		error(string.format("expecting %s inputs", self.nInputs))
+		error(string.format("expecting %s inputs", nInputs))
 	end
 	local function neteval(node)
 		local function propagate(node,x)
@@ -171,8 +173,8 @@ function gModule:runForwardFunction(func,input)
 	end
 
 	local innode = self.innode
-	if #input ~= self.nInputs then
-		error(string.format('Got %s inputs instead of %s', #input, self.nInputs))
+	if #input ~= nInputs then
+		error(string.format('Got %s inputs instead of %s', #input, nInputs))
 	end
 	-- first clear the input states
 	innode:bfs(function(node)
