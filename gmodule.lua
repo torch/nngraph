@@ -181,12 +181,12 @@ function gModule:runForwardFunction(func,input)
 		error(string.format('Got %s inputs instead of %s', #input, nInputs))
 	end
 	-- first clear the input states
-	innode:bfs(function(node)
+	for _,node in ipairs(self.forwardnodes) do
 		local input = node.data.input
 		while input and #input>0 do
 			table.remove(input)
 		end
-	end)
+	end
 	-- Set the starting input.
 	-- We do copy instead of modifying the passed input.
 	innode.data.input = innode.data.input or {}
@@ -255,12 +255,12 @@ function gModule:updateGradInput(input,gradOutput)
 	if #outnode.children > 1 and #gradOutput ~= #outnode.children then
 		error(string.format('Got %s gradOutputs instead of %s', #gradOutput, #outnode.children))
 	end
-	outnode:bfs(function(node)
+	for _,node in ipairs(self.backwardnodes) do
 		local gradOutput = node.data.gradOutput
 		while gradOutput and #gradOutput >0 do
 			table.remove(gradOutput)
 		end
-	end)
+	end
 	-- Set the starting gradOutput.
 	outnode.data.gradOutput = outnode.data.gradOutput or {}
 	outnode.data.gradOutput[1] = gradOutput
@@ -304,18 +304,16 @@ end
 
 function gModule:parameters()
 	local p,gp = {},{}
-	local innode = self.innode
-	innode:bfs(function(node)
-		if not node.data.module then
-			return
+	for _,node in ipairs(self.forwardnodes) do
+		if node.data.module then
+			local mp,mgp = node.data.module:parameters()
+			if mp and mgp then
+				for i = 1,#mp do
+					table.insert(p,mp[i])
+					table.insert(gp,mgp[i])
+				end
+			end
 		end
-
-		local mp,mgp = node.data.module:parameters()
-		if not mp or not mgp then return end
-		for i = 1,#mp do
-			table.insert(p,mp[i])
-			table.insert(gp,mgp[i])
-		end
-	end)
+	end
 	return p,gp
 end
