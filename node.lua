@@ -12,6 +12,13 @@ function nnNode:__init(data)
 	self.data.mapindex = self.data.mapindex or {}
 end
 
+function nnNode:name(name)
+	if self.data and istable(self.data) then
+		self.data._name = name
+	end
+	return self
+end
+
 -- domap ensures that this node will keep track of the order its children are added.
 -- mapindex is a forward/backward list
 -- index = self.data.mapindex[child.data]
@@ -47,7 +54,7 @@ end
 function nnNode:label()
 
 	local lbl = {}
-
+	
 	local function getstr(data)
 		if not data then return '' end
 		if istensor(data) then
