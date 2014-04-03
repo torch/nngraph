@@ -36,8 +36,18 @@ function nesting.resizeNestedAs(output, input)
 		output:resizeAs(input)
 	else
 		for key, child in pairs(input) do
-			assert(output[key] ~= nil, "missing key")
-			nesting.resizeNestedAs(output[key], child)
+			-- A new element is added to the output, if needed.
+			if not output[key] then
+				output[key] = nesting.cloneNested(child)
+			else
+				nesting.resizeNestedAs(output[key], child)
+			end
+		end
+		-- Extra elements are removed from the output. 
+		for key, child in pairs(output) do
+			if not input[key] then
+				output[key] = nil
+			end
 		end
 	end
 end
