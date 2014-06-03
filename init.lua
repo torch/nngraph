@@ -14,6 +14,8 @@ local istensor = utils.istensor
 local istable = utils.istable
 local istorchclass = utils.istorchclass
 
+-- simpler todot functions
+nngraph.simple_print =  paths.dofile('simple_print.lua')
 
 
 -- Modify the __call function to hack into nn.Module

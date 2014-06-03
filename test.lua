@@ -242,4 +242,18 @@ function t7()
     my.eq(gradInput, torch.Tensor{-5}, "gradInput of a fork")
 end
 
+function t8()
+    local in1 = nn.Identity()()
+    local m = nn.Linear(10,10)(in1)
+    local out1 = nn.Tanh()(m)
+    local out2 = nn.Tanh()(m)
+    local out = nn.CAddTable(){out1, out2}
+    local mod = nn.gModule({in1}, {out})
+
+    local dot = nngraph.simple_print.todot(mod.fg, 'bogus')
+    print (dot)
+    nngraph.simple_print.dot(mod.fg, 'bogus', 'new')
+    graph.dot(mod.fg, 'bogus', 'old')
+end
 -- t2()
+t8()
