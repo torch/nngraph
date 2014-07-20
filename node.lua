@@ -51,7 +51,12 @@ function nnNode:label()
 	local function getstr(data)
 		if not data then return '' end
 		if istensor(data) then
-			return 'Tensor[' .. table.concat(data:size():totable(),'x') .. ']'
+			local nanFlag = ''
+			local isNan = (data:ne(data):sum() > 0)
+			if isNan then
+				nanFlag = 'NaN'
+			end
+			return 'Tensor[' .. table.concat(data:size():totable(),'x') .. ']' .. nanFlag
 		elseif istable(data) then
 			local tstr = {}
 			for i,v in ipairs(data) do
