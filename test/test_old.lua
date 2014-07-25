@@ -210,38 +210,6 @@ local my={eq =
 		end
 	end}
 
-function t6()
-
-    local in1 = nn.Identity()()
-    local out1 = nn.Identity()(in1)
-    local module = nn.gModule({in1}, {out1})
-
-    local input = torch.Tensor({1})
-    module:forward(input)
-    my.eq(module.output, torch.Tensor{1}, "output")
-    local gradInput = module:backward(input, torch.Tensor({-123}))
-    my.eq(gradInput, torch.Tensor{-123}, "gradInput")
-
-    local input2 = torch.Tensor({2})
-    module:forward(input2)
-    my.eq(module.output, torch.Tensor{2}, "output for input2")
-    gradInput = module:backward(input2, torch.Tensor({-2}))
-    my.eq(gradInput, torch.Tensor{-2}, "expecting a recomputed gradInput")
-end
-
-
-function t7()
-    local in1 = nn.Identity()()
-    local out1 = nn.Identity()(in1)
-    local out2 = nn.Identity()(in1)
-    local module = nn.gModule({in1}, {out1, out2})
-
-    local input = torch.Tensor({1})
-    module:forward(input)
-    local gradInput = module:backward(input, {torch.Tensor({-2}), torch.Tensor({-3})})
-    my.eq(gradInput, torch.Tensor{-5}, "gradInput of a fork")
-end
-
 function t8()
     local in1 = nn.Identity()()
     local m = nn.Linear(10,10)(in1)
