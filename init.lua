@@ -7,6 +7,7 @@ nngraph = {}
 torch.include('nngraph','node.lua')
 torch.include('nngraph','gmodule.lua')
 torch.include('nngraph','graphinspecting.lua')
+torch.include('nngraph','ModuleFromCriterion.lua')
 
 -- handy functions
 local utils = paths.dofile('utils.lua')
@@ -41,4 +42,9 @@ function Module:__call__(...)
 	end
 
 	return mnode
+end
+
+local Criterion = torch.getmetatable('nn.Criterion')
+function Criterion:__call__(...)
+	return nn.ModuleFromCriterion(self)(...)
 end
