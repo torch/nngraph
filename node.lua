@@ -3,14 +3,28 @@ local utils = paths.dofile('utils.lua')
 local istensor = utils.istensor
 local istable = utils.istable
 local istorchclass = utils.istorchclass
+require 'debug'
 
 
 local nnNode,parent = torch.class('nngraph.Node','graph.Node')
 
 function nnNode:__init(data)
 	parent.__init(self,data)
+        self.data.annotations = self.data.annotations or {}
 	self.data.mapindex = self.data.mapindex or {}
+        if not self.data.annotations._debugLabel then
+          self:_makeDebugLabel(debug.getinfo(6, 'Sl'))
+        end
 end
+
+
+--[[ Build a string label which will be used a tooltip when
+  making a graph.]]
+function nnNode:_makeDebugLabel(dinfo)
+  self.data.annotations._debugLabel = string.format('[%s]:%d',
+      dinfo.short_src, dinfo.currentline, dinfo.name)
+end
+
 
 -- domap ensures that this node will keep track of the order its children are added.
 -- mapindex is a forward/backward list
@@ -28,7 +42,7 @@ function nnNode:add(child,domap)
 end
 
 -- this function returns noutput number of new nodes
--- that each take a single component of the output of this 
+-- that each take a single component of the output of this
 -- node in the order they are returned.
 function nnNode:split(noutput)
 	assert(noutput >= 2, "splitting to one output is not supported")
@@ -44,12 +58,36 @@ function nnNode:split(noutput)
 	return unpack(selectnodes)
 end
 
-function nnNode:name(name)
-	if self.data and istable(self.data) then
-		self.data.name = name
-	end
-	return self
+
+function nnNode:annotate(annotations)
+  for k, v in pairs(annotations) do
+    self.data.annotations[k] = v
+  end
+
+  return self
 end
+
+
+function nnNode:graphNodeName()
+  if self.data.annotations.name then
+    return self.data.annotations.name .. ' (' .. self.id .. ')'
+  else
+    return 'Node' .. self.id
+  end
+end
+
+
+function nnNode:graphNodeAttributes()
+  self.data.annotations.graphAttributes =
+      self.data.annotations.graphAttributes or {}
+  if not self.data.annotations.graphAttributes.tooltip then
+    self.data.annotations.graphAttributes.tooltip =
+        self.data.annotations._debugLabel
+  end
+
+  return self.data.annotations.graphAttributes
+end
+
 
 function nnNode:label()
 
@@ -85,17 +123,24 @@ function nnNode:label()
 
 	for k,v in pairs(self.data) do
 		local vstr = ''
-		if k == 'mapindex' then
-			if #v > 1 then 
+		if k== 'mapindex' then
+			if #v > 1 then
 				vstr = getmapindexstr(v)
 				table.insert(lbl, k .. ' = ' .. vstr)
 			end
-		elseif k == 'forwardNodeId' then
+		elseif k== 'forwardNodeId' or k== 'annotations' then
 			-- the forwardNodeId is not displayed in the label.
 		else
 			vstr = getstr(v)
 			table.insert(lbl, k .. ' = ' .. vstr)
 		end
 	end
-	return table.concat(lbl,"\\l")
+
+        local desc
+        if self.data.annotations.description then
+          desc = 'desc = ' .. self.data.annotations.description .. '\\n'
+        else
+          desc = ''
+        end
+	return desc .. table.concat(lbl,"\\l")
 end

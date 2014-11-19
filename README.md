@@ -131,3 +131,38 @@ graph.dot(gmod.fg,'Big MLP')
 <img src= "https://raw.github.com/koraykv/torch-nngraph/master/doc/mlp4_backward.png" width="300px"/>
 
 
+## Annotations
+
+It is possible to add annotations to your network, such as labeling nodes
+with names or attributes which will show up when you graph the network.
+This can be helpful in large graphs.
+
+For the full list of graph attributes see the
+[graphviz documentation](http://www.graphviz.org/doc/info/attrs.html).
+
+```
+	input = nn.Identity()()
+	L1 = nn.Tanh()(nn.Linear(10,20)(input)):annotate{
+            name = 'L1', description = 'Level 1 Node',
+            graphAttributes = {color = 'red'}}
+	L2 = nn.Tanh()(nn.Linear(30,60)(nn.JoinTable(1)({input,L1}))):annotate{
+            name = 'L2', description = 'Level 2 Node',
+            graphAttributes = {color = 'blue', fontcolor = 'green'}}
+	L3 = nn.Tanh()(nn.Linear(80,160)(nn.JoinTable(1)({L1,L2}))):annotate{
+            name = 'L3', descrption = 'Level 3 Node',
+            graphAttributes = {color = 'green',
+            style='filled', fillcolor = 'yellow'}}
+
+	g = nn.gModule({input},{L3})
+
+	indata = torch.rand(10)
+	gdata = torch.rand(160)
+	g:forward(indata)
+	g:backward(indata,gdata)
+
+	graph.dot(g.fg,'Forward Graph', '/tmp/fg')
+	graph.dot(g.bg,'Backward Graph', '/tmp/bg')
+```
+
+![Annotated forward graph](doc/annotation_fg.svg?raw=true)
+![Annotated backward graph](doc/annotation_bg.svg?raw=true)
