@@ -44,6 +44,13 @@ function nnNode:split(noutput)
 	return unpack(selectnodes)
 end
 
+function nnNode:name(name)
+	if self.data and istable(self.data) then
+		self.data.name = name
+	end
+	return self
+end
+
 function nnNode:label()
 
 	local lbl = {}
@@ -78,12 +85,12 @@ function nnNode:label()
 
 	for k,v in pairs(self.data) do
 		local vstr = ''
-		if k=='mapindex' then
+		if k == 'mapindex' then
 			if #v > 1 then 
 				vstr = getmapindexstr(v)
 				table.insert(lbl, k .. ' = ' .. vstr)
 			end
-		elseif k=='forwardNodeId' then
+		elseif k == 'forwardNodeId' then
 			-- the forwardNodeId is not displayed in the label.
 		else
 			vstr = getstr(v)
