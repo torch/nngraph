@@ -303,4 +303,42 @@ function test.test_resizeNestedAs()
     checkGradients(net, input)
 end
 
+
+function test.test_annotateGraph()
+  local input = nn.Identity()():annotate(
+      {name = 'Input', description = 'DescA',
+       graphAttributes = {color = 'red'}})
+
+  local hidden_a = nn.Linear(10, 10)(input):annotate(
+      {name = 'Hidden A', description = 'DescB',
+       graphAttributes = {color = 'blue', fontcolor='green', tooltip = 'I am green'}})
+  local hidden_b = nn.Sigmoid()(hidden_a)
+  local output = nn.Linear(10, 10)(hidden_b)
+  local net = nn.gModule({input}, {output})
+
+  tester:assert(hidden_a:label():match('DescB'))
+  local fg_tmpfile = os.tmpname()
+  local bg_tmpfile = os.tmpname()
+  graph.dot(net.fg, 'Test', fg_tmpfile)
+  graph.dot(net.fg, 'Test BG', bg_tmpfile)
+
+  local function checkDotFile(tmpfile)
+    local dotcontent = io.open(tmpfile .. '.dot', 'r'):read("*all")
+    tester:assert(
+        dotcontent:match('%[label=%"Input.*DescA.*%" color=red%]'))
+    tester:assert(
+        dotcontent:match(
+          '%[label=%"Hidden A.*DescB.*%".*fontcolor=green.*%]'))
+    tester:assert(
+        dotcontent:match('%[label=%".*DescB.*%".*color=blue.*%]'))
+    tester:assert(
+        dotcontent:match(
+          '%[label=%".*DescB.*%".*tooltip=%".*test_nngraph.lua.*%".*%]'))
+  end
+
+  checkDotFile(fg_tmpfile)
+  checkDotFile(bg_tmpfile)
+end
+
+
 tester:add(test):run()
