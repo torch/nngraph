@@ -164,5 +164,5 @@ For the full list of graph attributes see the
 	graph.dot(g.bg,'Backward Graph', '/tmp/bg')
 ```
 
-![Annotated forward graph](doc/annotation_fg.svg?raw=true)
-![Annotated backward graph](doc/annotation_bg.svg?raw=true)
+![Annotated forward graph](doc/annotation_fg.png?raw=true)
+![Annotated backward graph](doc/annotation_bg.png?raw=true)
