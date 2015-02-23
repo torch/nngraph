@@ -113,6 +113,14 @@ function gModule:apply(func)
 	end
 end
 
+function gModule:training()
+	self:apply(function(module) module:training() end)
+end
+
+function gModule:evaluate()
+	self:apply(function(module) module:evaluate() end)
+end
+
 function gModule:type(type)
 	self:apply(function(module) module:type(type) end)
 	return self
