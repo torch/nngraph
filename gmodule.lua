@@ -121,7 +121,34 @@ function gModule:evaluate()
 	self:apply(function(module) module:evaluate() end)
 end
 
+--[[ Recursively applies type(type_str) to any tensors in the argument. If the
+argument is a tensor, type(type_str) is applied; if the argument is an array,
+this function recurses into it. ]]
+local function recursiveType(param, type_str)
+	if torch.type(param) == 'table' then
+		for i = 1, #param do
+			param[i] = recursiveType(param[i], type_str)
+		end
+	elseif torch.typename(param) and
+		torch.typename(param):find('torch%..+Tensor') then
+		param = param:type(type_str)
+	end
+	return param
+end
+
 function gModule:type(type)
+	local function applyTypeToTable(table)
+		for key, value in pairs(table) do
+			table[key] = recursiveType(table[key], type)
+		end
+	end
+
+	-- Convert any stored data in self, and in the in and out nodes
+	applyTypeToTable(self)
+	if self.innode then applyTypeToTable(self.innode.data) end
+	if self.outnode then applyTypeToTable(self.outnode.data) end
+
+	-- Loop through modules and convert data
 	self:apply(function(module) module:type(type) end)
 	return self
 end
