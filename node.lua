@@ -21,8 +21,10 @@ end
 --[[ Build a string label which will be used a tooltip when
   making a graph.]]
 function nnNode:_makeDebugLabel(dinfo)
-  self.data.annotations._debugLabel = string.format('[%s]:%d',
-      dinfo.short_src, dinfo.currentline, dinfo.name)
+	if dinfo then
+		self.data.annotations._debugLabel = string.format('[%s]:%d',
+			dinfo.short_src, dinfo.currentline, dinfo.name)
+	end
 end
 
 
@@ -46,12 +48,13 @@ end
 -- node in the order they are returned.
 function nnNode:split(noutput)
 	assert(noutput >= 2, "splitting to one output is not supported")
-	local mnode = nngraph.Node({nSplitOutputs=noutput})
+	local debugLabel = self.data.annotations._debugLabel
+	local mnode = nngraph.Node({nSplitOutputs=noutput, annotations={_debugLabel=debugLabel .. '-mnode'}})
 	mnode:add(self,true)
 
 	local selectnodes = {}
 	for i=1,noutput do
-		local node = nngraph.Node({selectindex=i,input={}})
+		local node = nngraph.Node({selectindex=i,input={}, annotations={_debugLabel=debugLabel .. '-' .. i}})
 		node:add(mnode,true)
 		table.insert(selectnodes,node)
 	end
