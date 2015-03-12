@@ -29,6 +29,8 @@ Right now, this repo is not distributed as part of torch-pkg or luarocks system.
 ```
 ## Usage
 
+[Plug: A more explanatory nngraph tutorial by Nando De Freitas of  Oxford](https://www.cs.ox.ac.uk/people/nando.defreitas/machinelearning/practicals/practical5.pdf)
+
 The aim of this library is to provide users of nn library with tools to easily create complicated architectures. Any given nn module is going to be bundled into a graph node. The __call operator of an instance of nn.Module is used to create architectures as if one is writing function calls.
 
 ### One hidden layer network
