@@ -80,6 +80,14 @@ function test.test_twoInputs2()
     checkGradients(module, input)
 end
 
+function test.test_splitDebugLabels()
+    local node = nn.Identity()()
+    node.data.annotations._debugLabel = "node"
+    local node1, node2 = node:split(2)
+    assert(node1.data.annotations._debugLabel == "node-1")
+    assert(node2.data.annotations._debugLabel == "node-2")
+end
+
 function test.test_identity()
     local in1 = nn.Identity()()
     local in2 = nn.Identity()()
