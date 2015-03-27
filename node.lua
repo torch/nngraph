@@ -93,6 +93,9 @@ end
 
 
 local function getNanFlag(data)
+	if data:nElement() == 0 then
+		return ''
+	end
 	local isNan = (data:ne(data):sum() > 0)
 	if isNan then
 		return 'NaN'
