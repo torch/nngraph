@@ -352,3 +352,8 @@ function gModule:parameters()
 	end
 	return p,gp
 end
+
+function gModule:__tostring__()
+	return self.name or torch.type(self)
+end
+
