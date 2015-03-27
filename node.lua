@@ -93,6 +93,9 @@ end
 
 
 local function getNanFlag(data)
+	if data:nElement() == 0 then
+		return ''
+	end
 	local isNan = (data:ne(data):sum() > 0)
 	if isNan then
 		return 'NaN'
@@ -114,7 +117,11 @@ function nnNode:label()
 		if not data then return '' end
 		if istensor(data) then
 			local nanFlag = getNanFlag(data)
-			return 'Tensor[' .. table.concat(data:size():totable(),'x') .. ']' .. nanFlag
+			local tensorType = 'Tensor'
+			if data:type() ~= torch.Tensor():type() then
+				tensorType = data:type()
+			end
+			return tensorType .. '[' .. table.concat(data:size():totable(),'x') .. ']' .. nanFlag
 		elseif istable(data) then
 			local tstr = {}
 			for i,v in ipairs(data) do
