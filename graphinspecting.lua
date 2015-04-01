@@ -117,3 +117,23 @@ function nngraph.setDebug(enable)
         end
     end
 end
+
+-- Sets node.data.annotations.name for the found nodes.
+-- The local variables at the given stack level are inspected.
+-- The default stack level is 1 (the function that called annotateNodes()).
+function nngraph.annotateNodes(stackLevel)
+    stackLevel = stackLevel or 1
+    for index = 1, math.huge do
+        local varName, varValue = debug.getlocal(stackLevel + 1, index)
+        if not varName then
+            break
+        end
+        if torch.typename(varValue) == "nngraph.Node" then
+            -- An explicit name is preserved.
+            if not varValue.data.annotations.name then
+                varValue:annotate({name = varName})
+            end
+        end
+    end
+end
+
