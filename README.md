@@ -1,6 +1,6 @@
 # Neural Network Graph Package
 
-This package provides graphical computation for nn library in Torch7.
+This package provides graphical computation for `nn` library in [Torch](https://github.com/torch/torch7/blob/master/README.md).
 
 ## Requirements
 
