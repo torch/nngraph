@@ -50,7 +50,17 @@ function gModule:__init(inputs,outputs)
 	-- input point for the backward graph
 	local outnode = nngraph.Node({input={}})
 	for i,n in ipairs(outputs) do
+		if torch.typename(n) ~= 'nngraph.Node' then
+			error(string.format('what is this in the outputs[%s]? %s',
+				i, tostring(n)))
+		end
 		outnode:add(n,true)
+	end
+	for i,n in ipairs(inputs) do
+		if torch.typename(n) ~= 'nngraph.Node' then
+			error(string.format('what is this in the inputs[%s]? %s',
+				i, tostring(n)))
+		end
 	end
 	-- We add also a dummy input node.
 	-- The input node will be split to feed the passed input nodes.
