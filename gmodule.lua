@@ -123,6 +123,38 @@ function gModule:apply(func)
 	end
 end
 
+function gModule:map(gm, func)
+   for i,node in ipairs(self.forwardnodes) do
+      local gmnode = gm.forwardnodes[i]
+      assert(gmnode, 'trying to map another gModule with a different structure')
+      if node.data.module then
+         assert(gmnode.data.module, 'trying to map another gModule with a different structure')
+         func(node.data.module, gmnode.data.module)
+      end
+   end
+end
+
+function gModule:clone(...)
+   local f = torch.MemoryFile("rw"):binary()
+   f:writeObject(self)
+   f:seek(1)
+   local clone = f:readObject()
+   f:close()
+   if select('#', ...) > 0 then
+      clone:share(self, ...)
+   end
+   return clone
+end
+
+function gModule:share(gm, ...)
+   local args = {...}
+   self:map(gm,
+            function(subnet1, subnet2)
+               subnet1:share(subnet2, unpack(args))
+   end)
+   return self
+end
+
 function gModule:training()
 	self:apply(function(module) module:training() end)
 end
@@ -363,14 +395,6 @@ function gModule:parameters()
 	return p,gp
 end
 
--- Added share function
-function gModule:share(gModuleToShare, ...)
-   for indexNode, node in ipairs(self.forwardnodes) do
-      if node.data.module then
-	 node.data.module:share(gModuleToShare.forwardnodes[indexNode].data.module, ...)
-      end
-   end
-end
 
 function gModule:__tostring__()
 	return self.name or torch.type(self)
