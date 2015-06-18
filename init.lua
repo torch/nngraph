@@ -6,6 +6,7 @@ nngraph = {}
 
 torch.include('nngraph','node.lua')
 torch.include('nngraph','gmodule.lua')
+torch.include('nngraph','graphviz.lua')
 torch.include('nngraph','graphinspecting.lua')
 torch.include('nngraph','ModuleFromCriterion.lua')
 
@@ -36,7 +37,7 @@ function Module:__call__(...)
 
 	for i,dnode in ipairs(input) do
 		if torch.typename(dnode) ~= 'nngraph.Node' then
-			error('what is this in the input? ' .. tostring(dnode))
+			error('Expected nngraph.Node type, what is this in the input? ' .. tostring(dnode))
 		end
 		mnode:add(dnode,true)
 	end
@@ -44,6 +45,7 @@ function Module:__call__(...)
 	return mnode
 end
 
+-- Modify the __call function to hack into nn.Criterion
 local Criterion = torch.getmetatable('nn.Criterion')
 function Criterion:__call__(...)
 	return nn.ModuleFromCriterion(self)(...)

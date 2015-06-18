@@ -1,30 +1,23 @@
 
-local utils = paths.dofile('utils.lua')
-local istensor = utils.istensor
-local istable = utils.istable
-local istorchclass = utils.istorchclass
-require 'debug'
+--[[
+This file implements the nngraph.Node. In addition to graph.Node this class
+provides some additional functionality for handling neural networks in a graph
+]]
+local nnNode,parent = torch.class('nngraph.Node','graph.AnnotatedNode')
 
 
-local nnNode,parent = torch.class('nngraph.Node','graph.Node')
-
+--[[
+nngraph.Node
+Args:
+* `data` - the same as graph.Node(data). Any object type that will be stored as data 
+in the graph node.
+]]
 function nnNode:__init(data)
-	parent.__init(self,data)
-        self.data.annotations = self.data.annotations or {}
-	self.data.mapindex = self.data.mapindex or {}
-        if not self.data.annotations._debugLabel then
-          self:_makeDebugLabel(debug.getinfo(6, 'Sl'))
-        end
-end
-
-
---[[ Build a string label which will be used a tooltip when
-  making a graph.]]
-function nnNode:_makeDebugLabel(dinfo)
-	if dinfo then
-		self.data.annotations._debugLabel = string.format('[%s]:%d',
-			dinfo.short_src, dinfo.currentline, dinfo.name)
-	end
+	-- level 7 corresponds to level with the nngraph usage of nnNode's
+	-- inside Module:__call() syntax
+	parent.__init(self,data, 7)
+	-- decorate the data with additional info to keep track of order of connected nodes
+	self.data.mapindex = data.mapindex or {}
 end
 
 
@@ -61,106 +54,3 @@ function nnNode:split(noutput)
 	return unpack(selectnodes)
 end
 
-
-function nnNode:annotate(annotations)
-  for k, v in pairs(annotations) do
-    self.data.annotations[k] = v
-  end
-
-  return self
-end
-
-
-function nnNode:graphNodeName()
-  if self.data.annotations.name then
-    return self.data.annotations.name .. ' (' .. self.id .. ')'
-  else
-    return 'Node' .. self.id
-  end
-end
-
-
-function nnNode:graphNodeAttributes()
-  self.data.annotations.graphAttributes =
-      self.data.annotations.graphAttributes or {}
-  if not self.data.annotations.graphAttributes.tooltip then
-    self.data.annotations.graphAttributes.tooltip =
-        self.data.annotations._debugLabel
-  end
-
-  return self.data.annotations.graphAttributes
-end
-
-
-local function getNanFlag(data)
-	if data:nElement() == 0 then
-		return ''
-	end
-	local isNan = (data:ne(data):sum() > 0)
-	if isNan then
-		return 'NaN'
-	end
-	if data:max() == math.huge then
-		return 'inf'
-	end
-	if data:min() == -math.huge then
-		return '-inf'
-	end
-	return ''
-end
-
-function nnNode:label()
-
-	local lbl = {}
-
-	local function getstr(data)
-		if not data then return '' end
-		if istensor(data) then
-			local nanFlag = getNanFlag(data)
-			local tensorType = 'Tensor'
-			if data:type() ~= torch.Tensor():type() then
-				tensorType = data:type()
-			end
-			return tensorType .. '[' .. table.concat(data:size():totable(),'x') .. ']' .. nanFlag
-		elseif istable(data) then
-			local tstr = {}
-			for i,v in ipairs(data) do
-				table.insert(tstr, getstr(v))
-			end
-			return '{' .. table.concat(tstr,',') .. '}'
-		else
-			return tostring(data):gsub('\n','\\l')
-		end
-	end
-	local function getmapindexstr(mapindex)
-		local tstr = {}
-		for i,data in ipairs(mapindex) do
-			local inputId = 'Node' .. (data.forwardNodeId or '')
-			table.insert(tstr, inputId)
-		end
-		return '{' .. table.concat(tstr,',') .. '}'
-	end
-
-	for k,v in pairs(self.data) do
-		local vstr = ''
-		if k== 'mapindex' then
-			if #v > 1 then
-				vstr = getmapindexstr(v)
-				table.insert(lbl, k .. ' = ' .. vstr)
-			end
-		elseif k== 'forwardNodeId' or k== 'annotations' then
-			-- the forwardNodeId is not displayed in the label.
-		else
-			vstr = getstr(v)
-			table.insert(lbl, k .. ' = ' .. vstr)
-		end
-	end
-
-        local desc
-        if self.data.annotations.description then
-          desc = 'desc = ' .. self.data.annotations.description .. '\\n'
-        else
-          desc = ''
-        end
-	return desc .. table.concat(lbl,"\\l")
-end
