@@ -343,15 +343,15 @@ function test.test_annotateGraph()
   local function checkDotFile(tmpfile)
     local dotcontent = io.open(tmpfile .. '.dot', 'r'):read("*all")
     tester:assert(
-        dotcontent:match('%[label=%"Input.*DescA.*%" color=red%]'))
+        dotcontent:match('%[color=red.*label=%"Input.*DescA.*%".*%]'))
     tester:assert(
         dotcontent:match(
-          '%[label=%"Hidden A.*DescB.*%".*fontcolor=green.*%]'))
+          '%[.*fontcolor=green.*label=%"Hidden A.*DescB.*%".*%]'))
     tester:assert(
-        dotcontent:match('%[label=%".*DescB.*%".*color=blue.*%]'))
+        dotcontent:match('%[color=blue.*label=%".*DescB.*%".*%]'))
     tester:assert(
         dotcontent:match(
-          '%[label=%".*DescB.*%".*tooltip=%".*test_nngraph.lua.*%".*%]'))
+          '%[.*label=%".*DescB.*%".*tooltip=%"I am green%".*%]'))
   end
 
   checkDotFile(fg_tmpfile)
