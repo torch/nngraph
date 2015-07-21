@@ -192,6 +192,13 @@ function gModule:type(type)
 
 	-- Loop through modules and convert data
 	self:apply(function(module) module:type(type) end)
+
+  for i,node in ipairs(self.backwardnodes) do
+    if node.data.gradOutputBuffer ~= nil then
+      node.data.gradOutputBuffer = node.data.gradOutputBuffer:type(type)
+    end
+  end
+
 	return self
 end
 
