@@ -83,6 +83,9 @@ local function onError(failedNode, gmodule)
     local nInputs = gmodule.nInputs or #gmodule.innode.children
     local svgPathPrefix = gmodule.name or string.format(
         'nngraph_%sin_%sout', nInputs, #gmodule.outnode.children)
+    if paths.filep(svgPathPrefix .. '.svg') then
+        svgPathPrefix = svgPathPrefix .. '_' .. paths.basename(os.tmpname())
+    end
     local dotStr = customToDot(gmodule.fg, svgPathPrefix, failedNode)
     saveSvg(svgPathPrefix, dotStr)
 end
