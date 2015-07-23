@@ -358,5 +358,26 @@ function test.test_annotateGraph()
   checkDotFile(bg_tmpfile)
 end
 
+function test.test_splitMore()
+  local nSplits = 2
+  local in1 = nn.Identity()()
+  local out1, out2 = nn.SplitTable(2)(in1):split(nSplits)
+
+  local model = nn.gModule({in1}, {out1, out2})
+  local input = torch.randn(10, nSplits + 1)
+  local ok, result = pcall(model.forward, model, input)
+  assert(not ok, "the extra input to split should be detected")
+end
+
+function test.test_splitLess()
+  local nSplits = 3
+  local in1 = nn.Identity()()
+  local out1, out2, out3 = nn.SplitTable(2)(in1):split(nSplits)
+
+  local model = nn.gModule({in1}, {out1, out2, out3})
+  local input = torch.randn(10, nSplits - 1)
+  local ok, result = pcall(model.forward, model, input)
+  assert(not ok, "the missing input to split should be detected")
+end
 
 tester:add(test):run()

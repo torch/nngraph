@@ -252,6 +252,11 @@ function gModule:runForwardFunction(func,input)
 			else
 				output = func(node.data.module,input)
 			end
+			if node.data.nSplitOutputs and node.data.nSplitOutputs ~= #output then
+					error(string.format("split(%s) cannot split %s outputs",
+						node.data.nSplitOutputs,
+						#output))
+			end
 			-- propagate the output to children
 			propagate(node,output)
 		end
