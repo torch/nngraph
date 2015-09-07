@@ -1,12 +1,5 @@
 local utils = {}
 
-function utils.istensor(x)
-   if torch.typename(x) and torch.typename(x):find('Tensor') then
-      return true
-   end
-   return false
-end
-
 function utils.istorchclass(x)
    return type(x) == 'table' and torch.typename(x)
 end

@@ -1,6 +1,6 @@
 
 local utils = paths.dofile('utils.lua')
-local istensor = utils.istensor
+local istensor = torch.isTensor
 local istable = utils.istable
 local istorchclass = utils.istorchclass
 require 'debug'
