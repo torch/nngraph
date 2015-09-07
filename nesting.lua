@@ -2,7 +2,7 @@
 local nesting = {}
 
 local utils = paths.dofile('utils.lua')
-local istensor = utils.istensor
+local istensor = torch.isTensor
 
 -- Creates a clone of a tensor or of a table with tensors.
 function nesting.cloneNested(obj)
