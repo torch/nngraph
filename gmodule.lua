@@ -85,8 +85,31 @@ function gModule:__init(inputs,outputs)
 
    -- the complete graph is constructed
    -- now regenerate the graphs with the additional nodes
-   assert(#self.fg:roots() == 1, "expecting only one start")
-   self.innode = self.fg:roots()[1]
+
+   local roots = self.fg:roots()
+   -- if there are more than one root in the forward graph, then make sure that
+   -- extra roots are parameter nodes
+   if #roots > 1 then
+      local innodeRoot = nil
+      -- first find our innode
+      for _, root in ipairs(roots) do
+         if root.data == innode.data then
+            assert(innodeRoot == nil, 'more than one matching input node found in leaves')
+            innodeRoot = root
+         else
+            assert(root.data.module, 'Expected nnop.Parameters node, module not found in node')
+            assert(torch.typename(root.data.module) == 'nnop.Parameters',
+                  'Expected nnop.Parameters node, found : ' ..torch.typename(root.data.module))
+         end
+      end
+      assert(innodeRoot ~= nil, 'input node not found among roots')
+      self.innode = innodeRoot
+   else
+      assert(#self.fg:roots() == 1, "expecting only one start")
+      self.innode = self.fg:roots()[1]
+   end
+
+
    assert(self.innode.data == innode.data, "expecting the forward innode")
    self.outnode = outnode
    self.verbose = false
