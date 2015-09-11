@@ -46,3 +46,5 @@ local Criterion = torch.getmetatable('nn.Criterion')
 function Criterion:__call__(...)
    return nn.ModuleFromCriterion(self)(...)
 end
+
+return nngraph
