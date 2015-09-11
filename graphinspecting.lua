@@ -140,3 +140,19 @@ function nngraph.annotateNodes(stackLevel)
    end
 end
 
+--[[
+   SVG visualization for gmodule
+   TODO: add custom coloring with node types
+]]
+function nngraph.display(gmodule)
+   local ffi = require 'ffi'
+   local cmd
+   if ffi.os == 'Linux' then
+      cmd = 'xdg-open'
+   elseif ffi.os == 'OSX' then
+      cmd = 'open -a Safari'
+   end
+   local fname = os.tmpname()
+   graph.dot(gmodule.fg, fname, fname)
+   os.execute(cmd .. ' ' .. fname .. '.svg')
+end

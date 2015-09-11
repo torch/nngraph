@@ -264,6 +264,11 @@ function gModule:runForwardFunction(func,input)
          propagate(node,input)
       else
          local input = node.data.input
+
+         -- a parameter node is captured
+         if input == nil and node.data.module ~= nil then
+            input = {}
+         end
          if #input == 1 then
             input = input[1]
          end
@@ -340,6 +345,10 @@ function gModule:updateGradInput(input,gradOutput)
             gradInput = gradOutput
          else
             local input = node.data.input
+            -- a parameter node is captured
+            if input == nil and node.data.module ~= nil then
+               input = {}
+            end
             if #input == 1 then
                input = input[1]
             end
@@ -395,6 +404,10 @@ function gModule:accGradParameters(input,gradOutput,lr)
             gradOutput = node.data.gradOutputBuffer
          end
          local input = node.data.input
+         -- a parameter node is captured
+         if input == nil and node.data.module ~= nil then
+            input = {}
+         end
          if #input == 1 then
             input = input[1]
          end
