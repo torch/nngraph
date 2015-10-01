@@ -26,10 +26,3 @@ function ModuleFromCriterion:updateGradInput(input, gradOutput)
    self.gradInput[2]:resizeAs(target):zero()
    return self.gradInput
 end
-
-function ModuleFromCriterion:type(t)
-   self.criterion:type(t)
-   self.gradInput[1] = self.gradInput[1]:type(t)
-   self.gradInput[2] = self.gradInput[2]:type(t)
-   return parent.type(self,t)
-end

@@ -118,6 +118,12 @@ function gModule:__init(inputs,outputs)
    -- computation on the graph is done through topsort of forward and backward graphs
    self.forwardnodes = self.fg:topsort()
    self.backwardnodes = self.bg:topsort()
+   self.modules = {}
+   for _, node in ipairs(self.forwardnodes) do
+      if node.data.module then
+         table.insert(self.modules, node.data.module)
+      end
+   end
    -- Checking for unused inputs or unused split() outputs.
    for i,forwardNode in ipairs(self.forwardnodes) do
       if forwardNode.data.nSplitOutputs and forwardNode.data.nSplitOutputs ~=  #forwardNode.children then
@@ -135,14 +141,6 @@ function gModule:__init(inputs,outputs)
    self.gradInput = nil
    if #self.outnode.children > 1 then
       self.output = self.outnode.data.input
-   end
-end
-
-function gModule:apply(func)
-   for i,node in ipairs(self.forwardnodes) do
-      if node.data.module then
-         func(node.data.module)
-      end
    end
 end
 
@@ -179,11 +177,15 @@ function gModule:share(gm, ...)
 end
 
 function gModule:training()
-   self:apply(function(module) module:training() end)
+   for _, m in ipairs(self.modules) do
+      m:training()
+   end
 end
 
 function gModule:evaluate()
-   self:apply(function(module) module:evaluate() end)
+   for _, m in ipairs(self.modules) do
+      m:evaluate()
+   end
 end
 
 --[[ Recursively applies type(type_str) to any tensors in the argument. If the
@@ -201,7 +203,9 @@ local function recursiveType(param, type_str)
    return param
 end
 
-function gModule:type(type)
+function gModule:type(type, tensorCache)
+   tensorCache = tensorCache or {}
+
    local function applyTypeToTable(table)
       for key, value in pairs(table) do
          table[key] = recursiveType(table[key], type)
@@ -214,7 +218,9 @@ function gModule:type(type)
    if self.outnode then applyTypeToTable(self.outnode.data) end
 
    -- Loop through modules and convert data
-   self:apply(function(module) module:type(type) end)
+   for _, m in ipairs(self.modules) do
+      m:type(type, tensorCache)
+   end
 
    for i,node in ipairs(self.backwardnodes) do
       if node.data.gradOutputBuffer ~= nil then
@@ -226,7 +232,9 @@ function gModule:type(type)
 end
 
 function gModule:zeroGradParameters()
-   self:apply(function(module) module:zeroGradParameters() end)
+   for _, m in ipairs(self.modules) do
+      m:zeroGradParameters()
+   end
 end
 
 function gModule:updateOutput(input)
