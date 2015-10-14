@@ -162,8 +162,8 @@ graph.dot(g.bg, 'Backward Graph', '/tmp/bg')
 
 In this case, the graphs are saved in the following 4 files: `/tmp/{fg,bg}.{dot,svg}`.
 
-![Annotated forward graph](doc/annotation_fg.png?raw=true)
-![Annotated backward graph](doc/annotation_bg.png?raw=true)
+<img src= "https://raw.github.com/koraykv/torch-nngraph/master/doc/annotation_fg.png" width="300px"/>
+<img src= "https://raw.github.com/koraykv/torch-nngraph/master/doc/annotation_bg.png" width="300px"/>
 
 ## Debugging
 
@@ -203,4 +203,5 @@ pcall(function() net:updateOutput(input) end)
 -- just run Safari to display the svg
 os.execute('open -a  Safari my_bad_linear_net.svg')
 ```
-![Error graph](doc/my_bad_linear_net.png?raw=true)
+<img src= "https://raw.github.com/koraykv/torch-nngraph/master/doc/my_bad_linear_net.png" width="300px"/>
+
