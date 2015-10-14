@@ -177,14 +177,22 @@ function gModule:share(gm, ...)
 end
 
 function gModule:training()
+   parent.training(self)
    for _, m in ipairs(self.modules) do
       m:training()
    end
 end
 
 function gModule:evaluate()
+   parent.evaluate(self)
    for _, m in ipairs(self.modules) do
       m:evaluate()
+   end
+end
+
+function gModule:applyToModules(func)
+   for _, m in ipairs(self.modules) do
+      func(m)
    end
 end
 
