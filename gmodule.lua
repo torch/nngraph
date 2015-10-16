@@ -393,6 +393,24 @@ function gModule:accGradParameters(input,gradOutput,lr)
    end
 end
 
+function gModule:read(file)
+   local data = file:readObject()
+   for k, v in pairs(data) do
+      self[k] = v
+   end
+
+   -- Initialize the modules table if necessary.
+   if not self.modules then
+      self.modules = {}
+      for _, node in ipairs(self.forwardnodes) do
+         if node.data.module then
+            table.insert(self.modules, node.data.module)
+         end
+      end
+   end
+end
+
+
 function gModule:__tostring__()
    return self.name or torch.type(self)
 end
