@@ -1,4 +1,3 @@
-
 local nesting = paths.dofile('nesting.lua')
 local utils = paths.dofile('utils.lua')
 local istensor = torch.isTensor
@@ -40,7 +39,7 @@ end
 --
 -- The node.data.gradOutput holds the to-be-summed gradOutputs.
 -- Each node has only one output. So we need only one gradOutput.
-local gModule, parent = torch.class('nn.gModule','nn.Module')
+local gModule, parent = torch.class('nn.gModule','nn.Container')
 
 function gModule:__init(inputs,outputs)
    parent.__init(self)
@@ -109,7 +108,6 @@ function gModule:__init(inputs,outputs)
       self.innode = self.fg:roots()[1]
    end
 
-
    assert(self.innode.data == innode.data, "expecting the forward innode")
    self.outnode = outnode
    self.verbose = false
@@ -118,23 +116,22 @@ function gModule:__init(inputs,outputs)
    -- computation on the graph is done through topsort of forward and backward graphs
    self.forwardnodes = self.fg:topsort()
    self.backwardnodes = self.bg:topsort()
-   self.modules = {}
-   for _, node in ipairs(self.forwardnodes) do
+   
+   -- iteratare over all nodes: check, tag and add to container
+   for i,node in ipairs(self.forwardnodes) do
+      -- check for unused inputs or unused split() outputs
+      if node.data.nSplitOutputs and node.data.nSplitOutputs ~=  #node.children then
+         local nUnused = node.data.nSplitOutputs - #node.children
+         error(string.format("%s of split(%s) outputs are unused", nUnused, node.data.nSplitOutputs))
+      end
+
+      -- set data.forwardNodeId for node:label() output
+      node.data.forwardNodeId = node.id
+
+      -- add module to container
       if node.data.module then
-         table.insert(self.modules, node.data.module)
+         self:add(node.data.module)
       end
-   end
-   -- Checking for unused inputs or unused split() outputs.
-   for i,forwardNode in ipairs(self.forwardnodes) do
-      if forwardNode.data.nSplitOutputs and forwardNode.data.nSplitOutputs ~=  #forwardNode.children then
-         local nUnused = forwardNode.data.nSplitOutputs - #forwardNode.children
-         error(string.format("%s of split(%s) outputs are unused", nUnused,
-         forwardNode.data.nSplitOutputs))
-      end
-   end
-   -- Adding data.forwardNodeId for nicer node:label() output.
-   for i,forwardNode in ipairs(self.forwardnodes) do
-      forwardNode.data.forwardNodeId = forwardNode.id
    end
 
    self.output = nil
@@ -152,47 +149,6 @@ function gModule:map(gm, func)
          assert(gmnode.data.module, 'trying to map another gModule with a different structure')
          func(node.data.module, gmnode.data.module)
       end
-   end
-end
-
-function gModule:clone(...)
-   local f = torch.MemoryFile("rw"):binary()
-   f:writeObject(self)
-   f:seek(1)
-   local clone = f:readObject()
-   f:close()
-   if select('#', ...) > 0 then
-      clone:share(self, ...)
-   end
-   return clone
-end
-
-function gModule:share(gm, ...)
-   local args = {...}
-   self:map(gm,
-   function(subnet1, subnet2)
-      subnet1:share(subnet2, unpack(args))
-   end)
-   return self
-end
-
-function gModule:training()
-   parent.training(self)
-   for _, m in ipairs(self.modules) do
-      m:training()
-   end
-end
-
-function gModule:evaluate()
-   parent.evaluate(self)
-   for _, m in ipairs(self.modules) do
-      m:evaluate()
-   end
-end
-
-function gModule:applyToModules(func)
-   for _, m in ipairs(self.modules) do
-      func(m)
    end
 end
 
@@ -237,12 +193,6 @@ function gModule:type(type, tensorCache)
    end
 
    return self
-end
-
-function gModule:zeroGradParameters()
-   for _, m in ipairs(self.modules) do
-      m:zeroGradParameters()
-   end
 end
 
 function gModule:updateOutput(input)
@@ -443,24 +393,6 @@ function gModule:accGradParameters(input,gradOutput,lr)
    end
 end
 
-function gModule:parameters()
-   local p,gp = {},{}
-   for _,node in ipairs(self.forwardnodes) do
-      if node.data.module then
-         local mp,mgp = node.data.module:parameters()
-         if mp and mgp then
-            for i = 1,#mp do
-               table.insert(p,mp[i])
-               table.insert(gp,mgp[i])
-            end
-         end
-      end
-   end
-   return p,gp
-end
-
-
 function gModule:__tostring__()
    return self.name or torch.type(self)
 end
-
