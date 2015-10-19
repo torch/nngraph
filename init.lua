@@ -3,9 +3,11 @@ require 'graph'
 
 nngraph = {}
 
+torch.include('nngraph','nest.lua')
 torch.include('nngraph','node.lua')
 torch.include('nngraph','gmodule.lua')
 torch.include('nngraph','graphinspecting.lua')
+torch.include('nngraph','JustTable.lua')
 torch.include('nngraph','ModuleFromCriterion.lua')
 
 -- handy functions
