@@ -1,5 +1,7 @@
 # Neural Network Graph Package
 
+[![Build Status](https://travis-ci.org/torch/nngraph.svg)](https://travis-ci.org/torch/nngraph)
+
 This package provides graphical computation for `nn` library in [Torch](https://github.com/torch/torch7/blob/master/README.md).
 
 ## Requirements
