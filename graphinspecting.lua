@@ -114,6 +114,7 @@ function nngraph.setDebug(enable)
       nn.gModule[funcName] = function(...)
          local args = {...}
          local gmodule = args[1]
+	 local unpack = unpack or table.unpack
          return runChecked(function()
             return origFunc(unpack(args))
          end, onError, gmodule)

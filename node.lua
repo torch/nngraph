@@ -55,6 +55,8 @@ function nnNode:split(noutput)
       node:add(mnode,true)
       table.insert(selectnodes,node)
    end
+
+   local unpack = unpack or table.unpack -- Lua52 compat
    return unpack(selectnodes)
 end
 

@@ -121,6 +121,7 @@ function test.test_gradInputType()
       local gradOutput = torch.randn(h:size())
       local gradInput = module:backward(input, gradOutput)
 
+      local unpack = unpack or table.unpack
       local gradX, gradPrevState = unpack(gradInput)
       local gradPrevH, gradPrevCell = unpack(gradPrevState)
       assert(type(gradPrevH) == type(h), "wrong gradPrevH type")

@@ -10,6 +10,8 @@ function ModuleFromCriterion:__init(criterion)
    self.gradInput = {torch.Tensor(), torch.Tensor()}
 end
 
+local unpack = unpack or table.unpack -- lua52 compat
+
 --[[ The input is a {prediction, target} pair.
 The output is a tensor with one number: the criterion output.
 --]]
