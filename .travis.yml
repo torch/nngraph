@@ -7,6 +7,10 @@ cache:
   - $HOME/OpenBlasInstall
   - $HOME/GraphViz
 sudo: false
+env:
+  - TORCH_LUA_VERSION=LUAJIT21
+  - TORCH_LUA_VERSION=LUA51
+  - TORCH_LUA_VERSION=LUA52
 addons:
   apt:
     packages:
@@ -44,16 +48,17 @@ before_script:
 - cd ~/torch && git submodule update --init --recursive
 - mkdir build && cd build
 - export CMAKE_LIBRARY_PATH=$HOME/OpenBlasInstall/include:$HOME/OpenBlasInstall/lib:$CMAKE_LIBRARY_PATH
-- cmake .. -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" -DCMAKE_BUILD_TYPE=Release -DWITH_LUAJIT21=ON
+- cmake .. -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" -DCMAKE_BUILD_TYPE=Release -DWITH_${TORCH_LUA_VERSION}=ON
 - make && make install
 - cd $ROOT_TRAVIS_DIR
 - export LD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:$LD_LIBRARY_PATH
 script: 
 - ${INSTALL_PREFIX}/bin/luarocks make
-- ${INSTALL_PREFIX}/bin/luajit -lnngraph -e "print('nngraph loaded succesfully')"
+- export TESTLUA=$(which luajit lua | head -n 1)
+- ${TESTLUA} -lnngraph -e "print('nngraph loaded succesfully')"
 - ${INSTALL_PREFIX}/bin/luarocks install totem
 - cd test
-- ${INSTALL_PREFIX}/bin/luajit test_ModuleFromCriterion.lua
-- ${INSTALL_PREFIX}/bin/luajit test_nest.lua
-- ${INSTALL_PREFIX}/bin/luajit test_nngraph.lua
+- ${TESTLUA} test_ModuleFromCriterion.lua
+- ${TESTLUA} test_nest.lua
+- ${TESTLUA} test_nngraph.lua
 
