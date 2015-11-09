@@ -32,7 +32,9 @@ addons:
     - gfortran 
     - unzip 
     - gnuplot
-    - gnuplot-x11 
+    - gnuplot-x11
+    - graphviz
+    - graphviz-dev
 before_script: 
 - export ROOT_TRAVIS_DIR=$(pwd)
 - export INSTALL_PREFIX=~/torch/install
