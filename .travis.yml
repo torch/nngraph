@@ -55,6 +55,7 @@ before_script:
 script: 
 - ${INSTALL_PREFIX}/bin/luarocks make
 - export PATH=${INSTALL_PREFIX}/bin:$PATH
+- export LD_LIBRARY_PATH=$HOME/GraphViz/lib:$LD_LIBRARY_PATH
 - export TESTLUA=$(which luajit lua | head -n 1)
 - ${TESTLUA} -lnngraph -e "print('nngraph loaded succesfully')"
 - ${INSTALL_PREFIX}/bin/luarocks install totem
