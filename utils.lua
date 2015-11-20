@@ -25,4 +25,18 @@ function utils.expectingNodeErrorMessage(badVal, array, idx)
    end
 end
 
+--[[ Lua 5.2+ removed table.maxn, provide fallback implementation. ]]
+if table.maxn then
+   utils.tableMaxN = table.maxn
+else
+   function utils.tableMaxN(tbl)
+      local max = 0
+      for k, v in pairs(tbl) do
+         if type(k) == 'number' and k > max then
+            max = k
+         end
+      end
+      return max
+   end
+ end
 return utils

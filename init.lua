@@ -41,7 +41,7 @@ function Module:__call__(...)
    local mnode = nngraph.Node({module=self})
 
    local dnode
-   for i = 1, table.maxn(input) do
+   for i = 1, utils.tableMaxN(input) do
       dnode = input[i]
       if torch.typename(dnode) ~= 'nngraph.Node' then
          error(utils.expectingNodeErrorMessage(dnode, 'inputs', i))

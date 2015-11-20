@@ -49,14 +49,14 @@ function gModule:__init(inputs,outputs)
    -- input point for the backward graph
    local node
    local outnode = nngraph.Node({input={}})
-   for i = 1, table.maxn(outputs) do
+   for i = 1, utils.tableMaxN(outputs) do
       node = outputs[i]
       if torch.typename(node) ~= 'nngraph.Node' then
          error(utils.expectingNodeErrorMessage(node, 'outputs', i))
       end
       outnode:add(node, true)
    end
-   for i = 1, table.maxn(inputs) do
+   for i = 1, utils.tableMaxN(inputs) do
       node = inputs[i]
       if torch.typename(node) ~= 'nngraph.Node' then
          error(utils.expectingNodeErrorMessage(node, 'inputs', i))
