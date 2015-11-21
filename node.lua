@@ -20,8 +20,10 @@ end
 making a graph.]]
 function nnNode:_makeDebugLabel(dinfo)
    if dinfo then
-      self.data.annotations._debugLabel = string.format('[%s]:%d',
-      dinfo.short_src, dinfo.currentline, dinfo.name)
+      self.data.annotations._debugLabel = string.format('[%s]:%d_%s',
+                                                        dinfo.short_src,
+                                                        dinfo.currentline,
+                                                        dinfo.name or '')
    end
 end
 
@@ -46,7 +48,12 @@ end
 function nnNode:split(noutput)
    assert(noutput >= 2, "splitting to one output is not supported")
    local debugLabel = self.data.annotations._debugLabel
-   local mnode = nngraph.Node({nSplitOutputs=noutput, annotations={_debugLabel=debugLabel .. '-mnode'}})
+   -- Specify the source location where :split is called.
+   local dinfo = debug.getinfo(2, 'Sl')
+   local splitLoc = string.format(' split at [%s]:%d',
+                                  dinfo.short_src,
+                                  dinfo.currentline)
+   local mnode = nngraph.Node({nSplitOutputs=noutput, annotations={_debugLabel=debugLabel .. splitLoc .. '-mnode'}})
    mnode:add(self,true)
 
    local selectnodes = {}

@@ -47,18 +47,19 @@ function gModule:__init(inputs,outputs)
    -- we will define a dummy output node that connects all output modules
    -- into itself. This will be the output for the forward graph and
    -- input point for the backward graph
+   local node
    local outnode = nngraph.Node({input={}})
-   for i,n in ipairs(outputs) do
-      if torch.typename(n) ~= 'nngraph.Node' then
-         error(string.format('what is this in the outputs[%s]? %s',
-         i, tostring(n)))
+   for i = 1, utils.tableMaxN(outputs) do
+      node = outputs[i]
+      if torch.typename(node) ~= 'nngraph.Node' then
+         error(utils.expectingNodeErrorMessage(node, 'outputs', i))
       end
-      outnode:add(n,true)
+      outnode:add(node, true)
    end
-   for i,n in ipairs(inputs) do
-      if torch.typename(n) ~= 'nngraph.Node' then
-         error(string.format('what is this in the inputs[%s]? %s',
-         i, tostring(n)))
+   for i = 1, utils.tableMaxN(inputs) do
+      node = inputs[i]
+      if torch.typename(node) ~= 'nngraph.Node' then
+         error(utils.expectingNodeErrorMessage(node, 'inputs', i))
       end
    end
    -- We add also a dummy input node.
@@ -122,7 +123,11 @@ function gModule:__init(inputs,outputs)
       -- check for unused inputs or unused split() outputs
       if node.data.nSplitOutputs and node.data.nSplitOutputs ~=  #node.children then
          local nUnused = node.data.nSplitOutputs - #node.children
-         error(string.format("%s of split(%s) outputs are unused", nUnused, node.data.nSplitOutputs))
+         local debugLabel = node.data.annotations._debugLabel
+         local errStr =
+            "%s of split(%s) outputs from the node declared at %s are unused"
+         error(string.format(errStr, nUnused, node.data.nSplitOutputs,
+                             debugLabel))
       end
 
       -- set data.forwardNodeId for node:label() output
