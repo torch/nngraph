@@ -45,7 +45,7 @@ graph.dot(mlp.fg, 'MLP')
 Read this diagram from top to bottom, with the first and last nodes being *dummy nodes* that regroup all inputs and outputs of the graph.
 The `module` entry describes the function of the node, as applies to `input`, and producing a result of the shape `gradOutput`; `mapindex` contains pointers to the parent nodes.
 
-To save the *graph* on file, specify the file name, and bot a `dot` and `svg` files will be saved. For example, you can type:
+To save the *graph* on file, specify the file name, and both a `dot` and `svg` files will be saved. For example, you can type:
 
 ```lua
 graph.dot(mlp.fg, 'MLP', 'myMLP')
