@@ -46,7 +46,9 @@ end
 -- that each take a single component of the output of this
 -- node in the order they are returned.
 function nnNode:split(noutput)
-   assert(noutput >= 2, "splitting to one output is not supported")
+   if noutput == 1 then
+     return nngraph.JustElement()(self)
+   end
    local debugLabel = self.data.annotations._debugLabel
    -- Specify the source location where :split is called.
    local dinfo = debug.getinfo(2, 'Sl')
