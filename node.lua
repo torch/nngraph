@@ -11,6 +11,7 @@ function nnNode:__init(data)
    parent.__init(self,data)
    self.data.annotations = self.data.annotations or {}
    self.data.mapindex = self.data.mapindex or {}
+   self.data.reverseMap = self.data.reverseMap or {}
    if not self.data.annotations._debugLabel then
       self:_makeDebugLabel(debug.getinfo(6, 'Sl'))
    end
@@ -39,6 +40,13 @@ function nnNode:add(child,domap)
       assert(not mapindex[data], "Don't pass the same input twice.")
       table.insert(mapindex,data)
       mapindex[data] = #mapindex
+
+      -- The "child" that is added here actually represents the input node,
+      -- so we write into that node to indicate that we are downstream of it.
+      -- This enables dangling pointer detection.
+      local revMap = child.data.reverseMap
+      assert(not revMap[self], 'this connection has already been made!')
+      revMap[self] = true
    end
 end
 
