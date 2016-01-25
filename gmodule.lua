@@ -130,6 +130,29 @@ function gModule:__init(inputs,outputs)
                              debugLabel))
       end
 
+      -- Check whether any nodes were defined as taking this node as an input,
+      -- but then left dangling and don't connect to the output. If this is
+      -- the case, then they won't be present in forwardnodes, so error out.
+      for successor, _ in pairs(node.data.reverseMap) do
+         local successorIsInGraph = false
+
+         -- Only need to the part of forwardnodes from i onwards, topological
+         -- sort guarantees it cannot be in the first part.
+         for j = i+1, #self.forwardnodes do
+            -- Compare equality of data tables, as new Node objects have been
+            -- created by processes such as topoological sort, but the
+            -- underlying .data table is shared.
+            if self.forwardnodes[j].data == successor.data then
+               successorIsInGraph = true
+               break
+            end
+         end
+         local errStr =
+            "node declared on %s does not connect to gmodule output"
+         assert(successorIsInGraph,
+                string.format(errStr, successor.data.annotations._debugLabel))
+      end
+
       -- set data.forwardNodeId for node:label() output
       node.data.forwardNodeId = node.id
 
