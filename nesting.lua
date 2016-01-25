@@ -51,6 +51,23 @@ function nesting.resizeNestedAs(output, input)
    end
 end
 
+-- Copies all tensors in the output.
+function nesting.copyNested(output, input)
+   if torch.isTensor(output) then
+      output:copy(input)
+   else
+      for key, child in pairs(input) do
+          nesting.copyNested(output[key], child)
+      end
+      -- Extra elements are removed from the output.
+      for key, child in pairs(output) do
+         if not input[key] then
+            output[key] = nil
+         end
+      end
+   end
+end
+
 -- Adds the input to the output.
 -- The input can contain nested tables.
 -- The output will contain the same nesting of tables.
