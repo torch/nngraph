@@ -59,10 +59,10 @@ function nesting.copyNested(output, input)
       for key, child in pairs(input) do
           nesting.copyNested(output[key], child)
       end
-      -- Extra elements are removed from the output.
+      -- Extra elements in the output table cause an error.
       for key, child in pairs(output) do
          if not input[key] then
-            output[key] = nil
+            error('key ' .. key .. ' present in output but not in input')
          end
       end
    end
