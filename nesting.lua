@@ -62,7 +62,8 @@ function nesting.copyNested(output, input)
       -- Extra elements in the output table cause an error.
       for key, child in pairs(output) do
          if not input[key] then
-            error('key ' .. key .. ' present in output but not in input')
+            error('key ' .. tostring(key) ..
+                  ' present in output but not in input')
          end
       end
    end
