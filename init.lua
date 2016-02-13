@@ -3,22 +3,22 @@ require 'graph'
 
 nngraph = {}
 
-torch.include('nngraph','nest.lua')
-torch.include('nngraph','node.lua')
-torch.include('nngraph','gmodule.lua')
-torch.include('nngraph','graphinspecting.lua')
-torch.include('nngraph','JustElement.lua')
-torch.include('nngraph','JustTable.lua')
-torch.include('nngraph','ModuleFromCriterion.lua')
+require('nngraph.nest')
+require('nngraph.node')
+require('nngraph.gmodule')
+require('nngraph.graphinspecting')
+require('nngraph.JustElement')
+require('nngraph.JustTable')
+require('nngraph.ModuleFromCriterion')
 
 -- handy functions
-local utils = paths.dofile('utils.lua')
+local utils = require('nngraph.utils')
 local istensor = torch.isTensor
 local istable = utils.istable
 local istorchclass = utils.istorchclass
 
 -- simpler todot functions
-nngraph.simple_print =  paths.dofile('simple_print.lua')
+nngraph.simple_print =  require('nngraph.simple_print')
 
 -- Modify the __call function to hack into nn.Module
 local Module = torch.getmetatable('nn.Module')
