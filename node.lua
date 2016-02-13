@@ -1,5 +1,5 @@
 
-local utils = paths.dofile('utils.lua')
+local utils = require('nngraph.utils')
 local istensor = torch.isTensor
 local istable = utils.istable
 local istorchclass = utils.istorchclass

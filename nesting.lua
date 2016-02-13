@@ -1,7 +1,7 @@
 
 local nesting = {}
 
-local utils = paths.dofile('utils.lua')
+local utils = require('nngraph.utils')
 local istensor = torch.isTensor
 
 -- Creates a clone of a tensor or of a table with tensors.

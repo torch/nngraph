@@ -1,5 +1,5 @@
-local nesting = paths.dofile('nesting.lua')
-local utils = paths.dofile('utils.lua')
+local nesting = require('nngraph.nesting')
+local utils = require('nngraph.utils')
 local istensor = torch.isTensor
 local istable = utils.istable
 local istorchclass = utils.istorchclass
