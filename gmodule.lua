@@ -117,7 +117,7 @@ function gModule:__init(inputs,outputs)
    -- computation on the graph is done through topsort of forward and backward graphs
    self.forwardnodes = self.fg:topsort()
    self.backwardnodes = self.bg:topsort()
-   
+
    -- iteratare over all nodes: check, tag and add to container
    for i,node in ipairs(self.forwardnodes) do
       -- check for unused inputs or unused split() outputs
@@ -225,6 +225,18 @@ end
 
 function gModule:updateOutput(input)
    return self:runForwardFunction('updateOutput',input)
+end
+
+function gModule:clearState()
+   local ret = parent.clearState(self)
+   for _,node in ipairs(self.backwardnodes) do
+      node.data.gradOutput = nil
+      node.data.gradOutputBuffer = nil
+   end
+   for _,node in ipairs(self.forwardnodes) do
+      node.data.input = nil
+   end
+   return ret
 end
 
 function gModule:runForwardFunction(func,input)
