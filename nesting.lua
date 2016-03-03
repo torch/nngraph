@@ -2,11 +2,10 @@
 local nesting = {}
 
 local utils = require('nngraph.utils')
-local istensor = torch.isTensor
 
 -- Creates a clone of a tensor or of a table with tensors.
 function nesting.cloneNested(obj)
-   if istensor(obj) then
+   if torch.isTensor(obj) then
       return obj:clone()
    end
 
@@ -20,7 +19,7 @@ end
 -- Fills the obj with the given value.
 -- The obj can be a tensor or a table with tensors.
 function nesting.fillNested(obj, value)
-   if istensor(obj) then
+   if torch.isTensor(obj) then
       obj:fill(value)
    else
       for key, child in pairs(obj) do
@@ -31,7 +30,7 @@ end
 
 -- Resizes all tensors in the output.
 function nesting.resizeNestedAs(output, input)
-   if istensor(output) then
+   if torch.isTensor(output) then
       output:resizeAs(input)
    else
       for key, child in pairs(input) do
@@ -73,7 +72,7 @@ end
 -- The input can contain nested tables.
 -- The output will contain the same nesting of tables.
 function nesting.addNestedTo(output, input)
-   if istensor(output) then
+   if torch.isTensor(output) then
       output:add(input)
    else
       for key, child in pairs(input) do
