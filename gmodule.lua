@@ -274,7 +274,7 @@ function gModule:runForwardFunction(func,input)
    if nInputs <= 1 then
       input={input}
    elseif type(input) ~= "table" then
-      error(string.format("expecting %s inputs", nInputs))
+      error(string.format("expecting table of %s inputs", nInputs))
    end
    local function neteval(node)
       local function propagate(node,x)
