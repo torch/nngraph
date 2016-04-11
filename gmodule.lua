@@ -193,6 +193,22 @@ function gModule:__init(inputs,outputs)
    end
 end
 
+function gModule:replace(callback)
+    local out = callback(self)
+    local revmodules = {}
+    for i,m in ipairs(self.modules) do
+        revmodules[m] = i
+    end
+    for i,node in ipairs(self.forwardnodes) do
+        if node.data.module then
+            local m = node.data.module
+            node.data.module = m:replace(callback)
+            self.modules[revmodules[m]] = node.data.module
+        end
+    end
+    return out
+end
+
 function gModule:map(gm, func)
    for i,node in ipairs(self.forwardnodes) do
       local gmnode = gm.forwardnodes[i]

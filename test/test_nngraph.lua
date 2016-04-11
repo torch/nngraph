@@ -432,4 +432,40 @@ function test.test_gradInputType()
       assert(ok, "backward should succeed")
    end
 
+   function test.test_replace()
+      local i = nn.Identity()()
+      local l1 = nn.Linear(5, 2)(i)
+      local sig = nn.Sigmoid()(l1)
+      local l2  = nn.Linear(2, 5)(sig)
+      local model = nn.gModule({i}, {l2})
+
+      local input = torch.randn(4, 5)
+      local gradOutput = torch.randn(4, 5)
+      tester:eq(model:forward(input):size(), input:size(), "inconsistent output size")
+      tester:eq(model:backward(input, gradOutput):size(), input:size(), "inconsistent output size")
+
+      model:replace(function(m)
+         if torch.type(m) == 'nn.Linear' then
+            if m.weight:size(1) == 5 then
+               return nn.Linear(2, 10)
+            elseif m.weight:size(1) == 2 then
+               return nn.Linear(10, 2)
+            end
+         elseif torch.type(m) == 'nn.Sigmoid' then
+            return nn.Tanh()
+         end
+         return m
+      end)
+
+      local input = torch.randn(4, 10)
+      local gradOutput = torch.randn(4, 10)
+      tester:eq(model:forward(input):size(), input:size(), "inconsistent output size")
+      tester:eq(model:backward(input, gradOutput):size(), input:size(), "inconsistent output size")
+
+      tester:ne(model.modules[2], l1, "gModule.modules wasn't updated")
+      tester:ne(model.modules[3], sig, "gModule.modules wasn't updated")
+      tester:eq(torch.type(model.modules[3]), 'nn.Tanh', "replace didn't update gModule.modules")
+      tester:ne(model.modules[4], l2, "gModule.modules wasn't updated")
+   end
+
    tester:add(test):run()
