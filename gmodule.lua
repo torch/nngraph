@@ -220,6 +220,10 @@ local function recursiveType(param, type_str)
 end
 
 function gModule:type(type, tensorCache)
+   if not type then
+      return self._type
+   end
+
    tensorCache = tensorCache or {}
 
    local function applyTypeToTable(table)
@@ -244,6 +248,7 @@ function gModule:type(type, tensorCache)
       end
    end
 
+   self._type = type
    return self
 end
 
