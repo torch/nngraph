@@ -6,7 +6,7 @@ This package provides graphical computation for `nn` library in [Torch](https://
 
 ## Requirements
 
-You need *not* `graphviz` to be able to use this library but, if you have it, you will be able to display the graphs that you have created. For installing the package run the appropriate command below:
+You do *not* need `graphviz` to be able to use this library, but if you have it you will be able to display the graphs that you have created. For installing the package run the appropriate command below:
 
 ```bash
 # Mac users
