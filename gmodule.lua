@@ -260,7 +260,8 @@ function gModule:type(type, tensorCache)
 
    for i,node in ipairs(self.backwardnodes) do
       if node.data.gradOutputBuffer ~= nil then
-         node.data.gradOutputBuffer = node.data.gradOutputBuffer:type(type)
+         node.data.gradOutputBuffer =
+            recursiveType(node.data.gradOutputBuffer, type)
       end
    end
 
