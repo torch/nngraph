@@ -221,6 +221,7 @@ function test.test_gradInputType()
       tester:eq(torch.typename(module.innode.data.input[1]), "torch.DoubleTensor")
       tester:eq(torch.typename(module.outnode.data.input[1]), "torch.DoubleTensor")
       tester:eq(torch.typename(module.forwardnodes[1].data.input[1]), "torch.DoubleTensor")
+      tester:eq(torch.typename(module.forwardnodes[1].children[1].data.input[1]), "torch.DoubleTensor")
 
       module:float()
       local output = module:forward(input:float())
@@ -230,7 +231,8 @@ function test.test_gradInputType()
       tester:eq(torch.typename(module.innode.data.input[1]), "torch.FloatTensor")
       tester:eq(torch.typename(module.outnode.data.input[1]), "torch.FloatTensor")
       tester:eq(torch.typename(module.forwardnodes[1].data.input[1]), "torch.FloatTensor")
-   end
+      tester:eq(torch.typename(module.forwardnodes[1].children[1].data.input[1]), "torch.FloatTensor")
+   end   
 
    function test.test_nestedGradInput()
       local x = nn.Identity()()
