@@ -263,11 +263,17 @@ function gModule:type(type, tensorCache)
          node.data.gradOutputBuffer =
             recursiveType(node.data.gradOutputBuffer, type)
       end
+      for k, child in ipairs(node.children) do
+         applyTypeToTable(child.data)
+      end
    end
 
    for i,node in ipairs(self.forwardnodes) do
       if node.data.input ~= nil then
          node.data.input = recursiveType(node.data.input, type)
+      end
+      for k, child in ipairs(node.children) do
+         applyTypeToTable(child.data)
       end
    end
 
