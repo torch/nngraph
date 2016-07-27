@@ -265,6 +265,12 @@ function gModule:type(type, tensorCache)
       end
    end
 
+   for i,node in ipairs(self.forwardnodes) do
+      if node.data.input ~= nil then
+         node.data.input = recursiveType(node.data.input, type)
+      end
+   end
+
    self._type = type
    return self
 end
