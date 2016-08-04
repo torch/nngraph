@@ -58,4 +58,23 @@ function Criterion:__call__(...)
    return nn.ModuleFromCriterion(self)(...)
 end
 
+
+
+
+Module.__unm__ = function( obj )
+    return obj()
+end
+
+Module.__sub__ = function( prev, next )
+    return next(prev)
+end
+
+
+do
+    local Node = torch.getmetatable('nngraph.Node')
+    Node.__sub__ = function( prev, next )
+        return next(prev)
+    end
+end
+
 return nngraph
