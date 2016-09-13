@@ -187,7 +187,7 @@ L2 = nn.Tanh()(nn.Linear(30, 60)(nn.JoinTable(1)({input, L1}))):annotate{
    graphAttributes = {color = 'blue', fontcolor = 'green'}
 }
 L3 = nn.Tanh()(nn.Linear(80, 160)(nn.JoinTable(1)({L1, L2}))):annotate{
-   name = 'L3', descrption = 'Level 3 Node',
+   name = 'L3', description = 'Level 3 Node',
    graphAttributes = {color = 'green',
    style = 'filled', fillcolor = 'yellow'}
 }
