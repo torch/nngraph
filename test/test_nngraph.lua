@@ -348,7 +348,9 @@ function test.test_gradInputType()
       tester:assert(hidden_a:label():match('DescB') ~= nil)
       local fg_tmpfile = os.tmpname()
       local bg_tmpfile = os.tmpname()
-      graph.dot(net.fg, 'Test', fg_tmpfile)
+      if not pcall(function() graph.dot(net.fg, 'Test', fg_tmpfile) end) then
+         return -- prevent graphviz not found error
+      end
       graph.dot(net.fg, 'Test BG', bg_tmpfile)
 
       local function checkDotFile(tmpfile)
